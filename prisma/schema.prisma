@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  company  String
+  position String
+  password String
+  
+  roles      Roles[]
+  UsersRoles UsersRoles[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Roles {
+  id   String @id @default(uuid())
+  name String
+
+  users Users[]
+
+  UsersRoles UsersRoles[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("roles")
+}
+
+model UsersRoles {
+  id     String @id @default(uuid())
+  userId String
+  roleId String
+
+  user Users @relation(fields: [userId], references: [id])
+
+  role Roles @relation(fields: [roleId], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("users_roles")
+}
+
+model Warehouse {
+  id String @id @default(uuid())
+  name String 
+  description String @db.Text()
+
+  country  String
+  province String
+  address  String
+  code     String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  Pieces     Pieces[]
+
+  @@map("warehouse")
+}
+
+model Pieces {
+  id String @id @default(uuid())
+
+  name            String
+  description     String @db.Text
+  price           Float
+  quantity        Int
+  number_of_piece String
+  IMPA            String
+  BL              String
+
+  warehouseId   String
+  categoryId    String
+  subCategoryId String
+  transportId   String
+
+  transport   Transports    @relation(fields: [transportId], references: [id])
+  warehouse   Warehouse     @relation(fields: [warehouseId], references: [id])
+  category    Categories    @relation(fields: [categoryId], references: [id])
+  subcategory SubCategories @relation(fields: [subCategoryId], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("pieces")
+}
+
+model Categories {
+  id String @id @default(uuid())
+
+  name String
+  code String
+
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  Pieces        Pieces[]
+  SubCategories SubCategories[]
+
+  @@map("category")
+}
+
+model SubCategories {
+  id String @id @default(uuid())
+
+  name       String
+  code       String
+  categoryId String
+
+  category Categories @relation(fields: [categoryId], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  Pieces     Pieces[]
+
+  @@map("subcategory")
+}
+
+model Transports {
+  id String @id @default(uuid())
+
+  name String
+  code String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  Pieces     Pieces[]
+
+  @@map("transports")
+}
