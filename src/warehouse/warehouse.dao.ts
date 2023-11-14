@@ -23,7 +23,6 @@ export class WarehouseDao {
 
     async update(id: string, data: Warehouse): Promise<Warehouse> {
         const user = this.prisma.warehouse.update({ where: { id }, data });
-        console.log(user)
         return user
     }
 

@@ -35,7 +35,9 @@ export class UsersDao {
         const userFoundByEmail = await this.prisma.users.findFirst({
             where: { email },
         })
-        console.log("USER FOUND", userFoundByEmail)
+        if (!userFoundByEmail) {
+            throw new Error("Email não encontrado!")
+        }
         return userFoundByEmail
     }
 }

@@ -6,7 +6,7 @@ import { hash } from 'bcrypt';
 import { v4 as uuid } from 'uuid';
 @Injectable()
 export class WarehouseService {
-  constructor(private warehousesDao: WarehouseDao) {}
+  constructor(private warehousesDao: WarehouseDao) { }
   async create(createWarehouseDto: CreateWarehouseDto) {
     await this.warehousesDao.create(createWarehouseDto);
   }
@@ -21,6 +21,11 @@ export class WarehouseService {
       province: e.province,
       address: e.address,
       code: e.code,
+      type: e.type,
+      capacity: e.capacity,
+      company: e.company,
+      embarcationType: e.embarcationType,
+      flag: e.flag,
       created_at: e.created_at,
       updated_at: e.updated_at
     }))

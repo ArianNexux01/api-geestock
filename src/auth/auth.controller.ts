@@ -12,7 +12,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
 @Controller('auth')
 @ApiTags('Authentication')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
   @HttpCode(HttpStatus.OK)
   @Post('login')
   @ApiBody({
@@ -23,8 +23,14 @@ export class AuthController {
     type: UserEntity,
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  
-  signIn(@Body() signInDto: Record<string, string>) {
-    return this.authService.signIn(signInDto.email, signInDto.password);
+
+  async signIn(@Body() signInDto: Record<string, string>) {
+    try {
+
+      const res = await this.authService.signIn(signInDto.email, signInDto.password);
+      return res
+    } catch (error) {
+      return { error: error.message, status: 401 };
+    }
   }
 }

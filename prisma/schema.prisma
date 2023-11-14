@@ -17,7 +17,7 @@ model Users {
   company  String
   position String
   password String
-  
+
   roles      Roles[]
   UsersRoles UsersRoles[]
 
@@ -57,18 +57,22 @@ model UsersRoles {
 }
 
 model Warehouse {
-  id String @id @default(uuid())
-  name String 
-  description String @db.Text()
+  id          String  @id @default(uuid())
+  name        String
+  description String? @db.Text()
 
-  country  String
-  province String
-  address  String
-  code     String
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  Pieces     Pieces[]
+  country         String?
+  province        String?
+  address         String?
+  code            String
+  embarcationType String?
+  flag            String?
+  capacity        Int?
+  type            String
+  company         String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  Pieces          Pieces[]
 
   @@map("warehouse")
 }
@@ -76,26 +80,28 @@ model Warehouse {
 model Pieces {
   id String @id @default(uuid())
 
-  name            String
-  description     String @db.Text
-  price           Float
-  quantity        Int
-  number_of_piece String
-  IMPA            String
-  BL              String
+  name        String
+  description String @db.Text
+  price       Float
+  quantity    Int
+  state       String
+  brand_name  String
 
   warehouseId   String
   categoryId    String
   subCategoryId String
   transportId   String
+  supplierId    String @default("01")
 
-  transport   Transports    @relation(fields: [transportId], references: [id])
-  warehouse   Warehouse     @relation(fields: [warehouseId], references: [id])
-  category    Categories    @relation(fields: [categoryId], references: [id])
-  subcategory SubCategories @relation(fields: [subCategoryId], references: [id])
+  transport   Transports?    @relation(fields: [transportId], references: [id])
+  warehouse   Warehouse?     @relation(fields: [warehouseId], references: [id])
+  category    Categories?    @relation(fields: [categoryId], references: [id])
+  subcategory SubCategories? @relation(fields: [subCategoryId], references: [id])
+  supplier    Suppliers?     @relation(fields: [supplierId], references: [id])
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  Orders     Orders[]
 
   @@map("pieces")
 }
@@ -119,9 +125,9 @@ model SubCategories {
 
   name       String
   code       String
-  categoryId String
+  categoryId String?
 
-  category Categories @relation(fields: [categoryId], references: [id])
+  category Categories? @relation(fields: [categoryId], references: [id])
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -141,4 +147,31 @@ model Transports {
   Pieces     Pieces[]
 
   @@map("transports")
+}
+
+model Orders {
+  id          String @id @default(uuid())
+  description String
+  quantity    Int
+  imbl_awb    String
+  pieceId     String
+
+  piece Pieces? @relation(fields: [pieceId], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("order")
+}
+
+model Suppliers {
+  id   String @id @default(uuid())
+  name String
+  code String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  Pieces     Pieces[]
+
+  @@map("supplier")
 }
