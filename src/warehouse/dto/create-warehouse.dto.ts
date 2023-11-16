@@ -63,8 +63,8 @@ export class CreateWarehouseDto {
 
 
     @IsEnum({
-        fixed: "fixo",
-        movebla: "movel"
+        armazem: "Armazém",
+        embarcacao: "Embarcação"
     })
     @ApiProperty({
         example: "fixo",

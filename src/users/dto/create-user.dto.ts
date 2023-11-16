@@ -16,7 +16,6 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(5)
-  @MaxLength(100)
   @ApiProperty({
     example: 'Bento Julio',
     description: `The name that will be used in your Profile`,
@@ -26,7 +25,6 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(9)
-  @MaxLength(15)
   @ApiProperty({
     example: 'Frank, LDA.',
   })
@@ -35,7 +33,6 @@ export class CreateUserDto {
   @IsEmail()
   @IsNotEmpty()
   @MinLength(5)
-  @MaxLength(100)
   @ApiProperty({
     example: 'Fulano@xyz.com.ao',
   })
@@ -53,5 +50,5 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(5)
   @ApiProperty()
-  position: string;
+  position: string
 }

@@ -26,6 +26,9 @@ export class PieceService {
       categoryId: e.categoryId,
       subCategoryId: e.subCategoryId,
       transportId: e.transportId,
+      locationInWarehouse: e.locationInWarehouse,
+      target: e.target,
+      min: e.min,
       created_at: e.created_at,
       updated_at: e.updated_at
     }))

@@ -84,9 +84,11 @@ model Pieces {
   description String @db.Text
   price       Float
   quantity    Int
-  state       String
+  state       String 
   brand_name  String
-
+  locationInWarehouse String @default("No desc")
+  target Int @default(0)
+  min Int @default(0)
   warehouseId   String
   categoryId    String
   subCategoryId String
@@ -125,9 +127,9 @@ model SubCategories {
 
   name       String
   code       String
-  categoryId String?
+  categoryId String
 
-  category Categories? @relation(fields: [categoryId], references: [id])
+  category Categories @relation(fields: [categoryId], references: [id])
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

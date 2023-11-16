@@ -8,7 +8,11 @@ import { v4 as uuid } from 'uuid';
 export class SubcategoryService {
   constructor(private subcategoriesDao: SubcategoryDao) { }
   async create(createSubcategoryDto: CreateSubcategoryDto) {
-    await this.subcategoriesDao.create(createSubcategoryDto);
+    await this.subcategoriesDao.create({
+      categoryId: createSubcategoryDto.categoryId,
+      name: createSubcategoryDto.name,
+      code: createSubcategoryDto.code
+    });
   }
 
   async findAll() {
@@ -17,6 +21,7 @@ export class SubcategoryService {
       id: e.id,
       name: e.name,
       code: e.code,
+      category: e.category,
       created_at: e.created_at,
       updated_at: e.updated_at
     }))
