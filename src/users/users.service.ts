@@ -6,11 +6,12 @@ import { hash } from 'bcrypt';
 import { v4 as uuid } from 'uuid';
 @Injectable()
 export class UsersService {
-  constructor(private usersDao: UsersDao) {}
+  constructor(private usersDao: UsersDao) { }
   async create(createUserDto: CreateUserDto) {
     createUserDto.password = await hash(createUserDto.password, 4);
     createUserDto.id = uuid();
     await this.usersDao.create(createUserDto);
+
   }
 
   async findAll() {
@@ -20,6 +21,8 @@ export class UsersService {
       name: e.name,
       position: e.position,
       company: e.company,
+      email: e.email,
+      warehouse: e.warehouse,
       created_at: e.created_at,
       updated_at: e.updated_at
     }))

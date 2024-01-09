@@ -28,9 +28,23 @@ export class SubcategoryService {
     return subcategoriesToReturn;
   }
 
+  async findByCategory(category: string) {
+    const subcategories = await this.subcategoriesDao.findByCategory(category);
+    const subcategoriesToReturn = subcategories.map(e => ({
+      id: e.id,
+      name: e.name,
+      code: e.code,
+      category: e.category,
+      created_at: e.created_at,
+      updated_at: e.updated_at
+    }))
+    return subcategoriesToReturn;
+  }
+
   async findOne(id: string) {
     await this.subcategoriesDao.find(id);
   }
+
 
   async update(id: string, updateSubcategoryDto: UpdateSubcategoryDto) {
     await this.subcategoriesDao.update(id, updateSubcategoryDto);

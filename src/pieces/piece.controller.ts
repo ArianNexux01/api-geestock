@@ -8,7 +8,7 @@ import { Piece } from './entities/piece.entity';
 @ApiTags('Piece')
 @Controller('piece')
 export class PieceController {
-  constructor(private readonly warehouseService: PieceService) { }
+  constructor(private readonly pieceService: PieceService) { }
 
   @ApiCreatedResponse({
     description: 'Piece registered successfully',
@@ -19,28 +19,34 @@ export class PieceController {
   })
   @Post()
   create(@Body() createPieceDto: CreatePieceDto) {
-    return this.warehouseService.create(createPieceDto);
+    return this.pieceService.create(createPieceDto);
   }
 
   @Get()
   findAll() {
-    return this.warehouseService.findAll();
+    return this.pieceService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.warehouseService.findOne(id);
+    return this.pieceService.findOne(id);
   }
+
+  @Get('/warehouse/:id')
+  findByWarehouse(@Param('id') id: string) {
+    return this.pieceService.findByWarehouse(id);
+  }
+
 
   @ApiBearerAuth()
   @ApiBody({ type: UpdatePieceDto })
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePieceDto: UpdatePieceDto) {
-    return this.warehouseService.update(id, updatePieceDto);
+    return this.pieceService.update(id, updatePieceDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.warehouseService.remove(id);
+    return this.pieceService.remove(id);
   }
 }

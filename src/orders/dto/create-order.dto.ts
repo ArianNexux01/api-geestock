@@ -17,19 +17,37 @@ export class CreateOrderDto {
     })
     imbl_awb: string
 
+    @ApiProperty({
+        example: '0010LA011',
+    })
+    reference: string
+
+    @IsString()
+    @ApiProperty({
+        example: '0010LA011',
+    })
+    number_order: string
 
     @IsNotEmpty()
     @ApiProperty({
-        example: 'Luanda',
+        example: [{
+            pieceId: "0001",
+            quantity: 10,
+            price: 19
+        }],
     })
-    pieceId: string
+    request: {
+        pieceId: string,
+        quantity: number,
+        price: number
+    }
 
 
-    @IsNotEmpty()
+
     @ApiProperty({
-        example: 10,
+        example: 'Finalizada',
     })
-    quantity: number
+    state: string
 
 
 }

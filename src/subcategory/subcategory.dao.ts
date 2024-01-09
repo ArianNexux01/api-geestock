@@ -11,32 +11,48 @@ export class SubcategoryDao {
 
     async create(data: CreateSubcategoryDto): Promise<any> {
 
-        return this.prisma.subCategories.create({ 
-            data:{
-            name: data.name,
-            code: data.code,
-            category: {
-               connect:{id: data.categoryId}
-            }
-        },     
-    });
+        return this.prisma.subCategories.create({
+            data: {
+                name: data.name,
+                code: data.code,
+                category: {
+                    connect: { id: data.categoryId }
+                }
+            },
+        });
 
     }
 
     async list(): Promise<ListSubcategoryDto[]> {
         const subcategory = await this.prisma.subCategories.findMany({
             include: {
-            category: true
-        }});
-        
+                category: true
+            }
+        });
+
         return subcategory
     }
 
     async find(id: string): Promise<SubCategories | null> {
-        return this.prisma.subCategories.findFirst({ where: { id }, include: {
-            category: true
-        } });
+        return this.prisma.subCategories.findFirst({
+            where: { id }, include: {
+                category: true
+            }
+        });
     }
+
+    async findByCategory(id: string): Promise<ListSubcategoryDto[]> {
+        const subcategory = this.prisma.subCategories.findMany({
+            where: {
+                categoryId: id
+            }, include: {
+                category: true
+            }
+        });
+
+        return subcategory
+    }
+
 
     async update(id: string, data: SubCategories): Promise<SubCategories> {
         const user = this.prisma.subCategories.update({ where: { id }, data });

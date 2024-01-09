@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { Order } from './entities/order.entity';
+import { ConfirmOrderDTO } from './dto/confirm-order.dto';
 
 @ApiTags('Order')
 @Controller('order')
@@ -42,5 +43,11 @@ export class OrderController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.orderService.remove(id);
+  }
+
+  @ApiBearerAuth()
+  @Post("/confirm-order/:orderId")
+  async confirmOrder(@Param('orderId') orderId: string, @Body() confirmOrder: ConfirmOrderDTO) {
+    await this.orderService.confirmOrder(orderId, confirmOrder)
   }
 }

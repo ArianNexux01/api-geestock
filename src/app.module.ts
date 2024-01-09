@@ -11,8 +11,9 @@ import { SubcategoryModule } from './subcategory/subcategory.module';
 import { TransportModule } from './transport/transport.module';
 import { OrderModule } from './orders/order.module';
 import { SupplierModule } from './supplier/supplier.module';
+import { RequestModule } from './requests/request.module';
 @Module({
-  imports: [UsersModule, AuthModule, WarehouseModule, PieceModule, CategoryModule, SubcategoryModule, TransportModule, OrderModule, SupplierModule],
+  imports: [UsersModule, AuthModule, RequestModule, WarehouseModule, PieceModule, CategoryModule, SubcategoryModule, TransportModule, OrderModule, SupplierModule],
   controllers: [AppController],
   providers: [AppService],
 })

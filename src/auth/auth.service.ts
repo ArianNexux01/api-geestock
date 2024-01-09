@@ -21,7 +21,8 @@ export class AuthService {
                 email: user.email,
                 name: user.name,
                 company: user.company,
-                position: user.position
+                position: user.position,
+                warehouse: user.warehouse
             },
             access_token: await this.jwtService.signAsync(payload),
         };

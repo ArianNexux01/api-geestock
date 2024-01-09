@@ -15,7 +15,6 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(5)
   @ApiProperty({
     example: 'Bento Julio',
     description: `The name that will be used in your Profile`,
@@ -24,11 +23,18 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(9)
   @ApiProperty({
     example: 'Frank, LDA.',
   })
   company: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 'b40e442d-61d3-43cd-8b9f-37578f7d3d7b',
+  })
+  warehouseId: string;
+
 
   @IsEmail()
   @IsNotEmpty()
@@ -46,9 +52,7 @@ export class CreateUserDto {
   @ApiProperty()
   password: string;
 
-  @IsString()
   @IsNotEmpty()
-  @MinLength(5)
   @ApiProperty()
   position: string
 }

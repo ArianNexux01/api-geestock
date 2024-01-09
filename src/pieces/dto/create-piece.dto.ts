@@ -13,6 +13,7 @@ export class CreatePieceDto {
     })
     name: string
 
+
     @IsString()
     @IsNotEmpty()
     @ApiProperty({
@@ -40,6 +41,13 @@ export class CreatePieceDto {
         example: 10,
     })
     target: number
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty({
+        example: "10",
+    })
+    partNumber: string
 
     @IsNumber()
     @IsNotEmpty()
@@ -69,13 +77,6 @@ export class CreatePieceDto {
     })
     subCategoryId: string
 
-    @IsString()
-    @IsNotEmpty()
-    @ApiProperty({
-        example: 'Teste, LDA',
-    })
-    transportId: string
-
 
     @IsString()
     @IsNotEmpty()
@@ -86,7 +87,7 @@ export class CreatePieceDto {
 
 
     @IsEnum({
-        encomendada: "Encomendada",
+        encomendada: "Removido",
         disponivel: "Disponivel"
     })
     @IsNotEmpty()

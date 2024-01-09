@@ -31,6 +31,10 @@ export class SubcategoryController {
   findOne(@Param('id') id: string) {
     return this.subcategoryService.findOne(id);
   }
+  @Get(':id')
+  findByCategory(@Param('id') id: string) {
+    return this.subcategoryService.findByCategory(id);
+  }
 
   @ApiBearerAuth()
   @ApiBody({ type: UpdateSubcategoryDto })

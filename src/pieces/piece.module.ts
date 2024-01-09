@@ -8,5 +8,6 @@ import { PieceDao } from './piece.dao';
   imports: [PrismaModule],
   controllers: [PieceController],
   providers: [PieceService, PieceDao],
+  exports: [PieceDao]
 })
 export class PieceModule { }

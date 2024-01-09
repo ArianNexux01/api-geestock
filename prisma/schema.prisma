@@ -11,15 +11,16 @@ datasource db {
 }
 
 model Users {
-  id       String @id @default(uuid())
-  name     String
-  email    String @unique
-  company  String
-  position String
-  password String
-
-  roles      Roles[]
-  UsersRoles UsersRoles[]
+  id          String       @id @default(uuid())
+  name        String
+  email       String       @unique
+  company     String
+  position    String
+  password    String
+  warehouseId String
+  roles       Roles[]
+  UsersRoles  UsersRoles[]
+  warehouse   Warehouse?   @relation(fields: [warehouseId], references: [id])
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -73,6 +74,10 @@ model Warehouse {
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
   Pieces          Pieces[]
+  Users           Users[]
+
+  Requests      Requests[] @relation("warehouseIncommingRequest")
+  RequestsModel Requests[] @relation("warehouseOutcommingRequest")
 
   @@map("warehouse")
 }
@@ -80,30 +85,30 @@ model Warehouse {
 model Pieces {
   id String @id @default(uuid())
 
-  name        String
-  description String @db.Text
-  price       Float
-  quantity    Int
-  state       String 
-  brand_name  String
+  name                String
+  description         String @db.Text
+  price               Float
+  quantity            Int
+  state               String
+  brand_name          String
   locationInWarehouse String @default("No desc")
-  target Int @default(0)
-  min Int @default(0)
-  warehouseId   String
-  categoryId    String
-  subCategoryId String
-  transportId   String
-  supplierId    String @default("01")
+  target              Int    @default(0)
+  min                 Int    @default(0)
+  warehouseId         String
+  categoryId          String
+  subCategoryId       String
+  partNumber          String @default("0")
+  supplierId          String @default("01")
 
-  transport   Transports?    @relation(fields: [transportId], references: [id])
   warehouse   Warehouse?     @relation(fields: [warehouseId], references: [id])
   category    Categories?    @relation(fields: [categoryId], references: [id])
   subcategory SubCategories? @relation(fields: [subCategoryId], references: [id])
   supplier    Suppliers?     @relation(fields: [supplierId], references: [id])
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  Orders     Orders[]
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+  OrdersPiece    OrdersPiece[]
+  RequestsPieces RequestsPieces[]
 
   @@map("pieces")
 }
@@ -146,24 +151,36 @@ model Transports {
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  Pieces     Pieces[]
 
   @@map("transports")
 }
 
 model Orders {
-  id          String @id @default(uuid())
-  description String
-  quantity    Int
-  imbl_awb    String
-  pieceId     String
+  id           String        @id @default(uuid())
+  description  String
+  number_order String        @default("0")
+  imbl_awb     String
+  reference    String        @default("00")
+  state        String        @default("Em curso")
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
+  OrdersPiece  OrdersPiece[]
 
-  piece Pieces? @relation(fields: [pieceId], references: [id])
+  @@map("order")
+}
+
+model OrdersPiece {
+  pieceId  String
+  piece    Pieces @relation(fields: [pieceId], references: [id])
+  orderId  String
+  Order    Orders @relation(fields: [orderId], references: [id])
+  quantity Float
+  price    Float
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@map("order")
+  @@id([pieceId, orderId])
 }
 
 model Suppliers {
@@ -176,4 +193,47 @@ model Suppliers {
   Pieces     Pieces[]
 
   @@map("supplier")
+}
+
+model Requests {
+  id                    String   @id @default(uuid())
+  name                  String   @default("None")
+  warehouseIdIncomming  String?
+  warehouseIdOutcomming String?
+  state                 String
+  numberPr              String   @default("0")
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+
+  warehouseIncomming  Warehouse?       @relation(name: "warehouseIncommingRequest", fields: [warehouseIdIncomming], references: [id])
+  warehouseOutcomming Warehouse?       @relation(name: "warehouseOutcommingRequest", fields: [warehouseIdOutcomming], references: [id])
+  RequestsPieces      RequestsPieces[]
+
+  @@map("requests")
+}
+
+model RequestsPieces {
+  id               String              @id @default(uuid())
+  pieceId          String
+  piece            Pieces              @relation(fields: [pieceId], references: [id])
+  requestId        String
+  request          Requests            @relation(fields: [requestId], references: [id])
+  quantity         Int
+  quantityGiven    Int?
+  created_at       DateTime            @default(now())
+  updated_at       DateTime            @default(now()) @updatedAt
+  InvoiceReciepmen InvoiceReciepment[]
+}
+
+model InvoiceReciepment {
+  id              String         @id @default(uuid())
+  partNumber      String
+  numberSeries    String         @default("0")
+  description     String
+  number_series   String?
+  requestPiecesId String
+  request         RequestsPieces @relation(fields: [requestPiecesId], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
 }

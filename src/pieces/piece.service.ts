@@ -25,7 +25,6 @@ export class PieceService {
       warehouseId: e.warehouseId,
       categoryId: e.categoryId,
       subCategoryId: e.subCategoryId,
-      transportId: e.transportId,
       locationInWarehouse: e.locationInWarehouse,
       target: e.target,
       min: e.min,
@@ -45,5 +44,9 @@ export class PieceService {
 
   async remove(id: string) {
     await this.piecesDao.delete(id);
+  }
+  async findByWarehouse(id: string) {
+    console.log(id);
+    return await this.piecesDao.findByWarehouseId(id)
   }
 }

@@ -18,8 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prisma:generate":"npx prisma generate",
-    "prisma:dbpush":"npx prisma db push"
+    "prisma:generate": "npx prisma generate",
+    "prisma:dbpush": "npx prisma db push"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -36,6 +36,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.3.1",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",

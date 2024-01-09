@@ -6,7 +6,7 @@ import { PrismaService } from '../database/prisma.service';
 export class PieceDao {
     constructor(private readonly prisma: PrismaService) { }
 
-    async create(data: Prisma.PiecesCreateInput): Promise<any> {
+    async create(data: any): Promise<any> {
 
         return this.prisma.pieces.create({ data });
     }
@@ -22,8 +22,8 @@ export class PieceDao {
     }
 
     async update(id: string, data: Pieces): Promise<Pieces> {
-        const user = this.prisma.pieces.update({ where: { id }, data });
-        return user
+        const piece = this.prisma.pieces.update({ where: { id }, data });
+        return piece
     }
 
     async delete(id: string): Promise<Pieces> {
@@ -32,7 +32,6 @@ export class PieceDao {
 
     async increaseQuantity(id: string, quantity: number): Promise<Pieces> {
         const pieceFound = await this.find(id)
-        console.log("PIECE FOUND", pieceFound)
         const piece = this.prisma.pieces.update({
             where: { id },
             data: {
@@ -41,5 +40,52 @@ export class PieceDao {
         });
         console.log(piece)
         return piece
+    }
+
+    async updateQuantity(id: string, quantity: number): Promise<Pieces> {
+        const piece = this.prisma.pieces.update({
+            where: { id },
+            data: {
+                quantity: quantity
+            }
+        });
+        return piece
+    }
+
+    async updatePrice(id: string, newPrice: number): Promise<Pieces> {
+        const piece = this.prisma.pieces.update({
+            where: { id }, data: {
+                price: newPrice
+            }
+        });
+        return piece
+    }
+
+    async updateWarehouse(id: string, warehouse: string): Promise<any> {
+        const piece = await this.prisma.pieces.update({
+            where: { id },
+            data: {
+                warehouseId: warehouse
+            }
+        });
+        return piece
+    }
+
+    async findByWarehouseId(warehouseId: string): Promise<any> {
+        const piecesByWarehouse = await this.prisma.pieces.findMany({
+            where: { warehouseId },
+        })
+        console.log(piecesByWarehouse)
+        return piecesByWarehouse
+    }
+
+    async findByPartNumberAndWarehouse(warehouseId: string, partNumber: string) {
+        const piecesByWarehousePartNumber = await this.prisma.pieces.findFirst({
+            where: {
+                warehouseId,
+                partNumber
+            },
+        })
+        return piecesByWarehousePartNumber
     }
 }

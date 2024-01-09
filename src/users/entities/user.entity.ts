@@ -8,32 +8,35 @@ export class UserEntity implements Users {
   constructor(partial: Partial<UserEntity>) {
     Object.assign(this, partial);
   }
-  
-  
+
+
   @ApiProperty()
   id: string;
-  
+
   @ApiProperty()
   name: string;
-  
+
   @ApiProperty()
   position: string;
-  
+
   @ApiProperty()
   email: string;
-  
+
   @ApiProperty()
   address: string;
-  
+
   @ApiProperty()
   role: number[];
-  
+
   @ApiProperty()
   company: string;
-  
+
+  @ApiProperty()
+  warehouseId: string;
+
   @Exclude()
   password: string;
-  
+
   @Exclude()
   created_at: Date;
   @Exclude()
