@@ -33,7 +33,7 @@ export class WarehouseService {
   }
 
   async findOne(id: string) {
-    await this.warehousesDao.find(id);
+    return  await this.warehousesDao.find(id);
   }
 
   async update(id: string, updateWarehouseDto: UpdateWarehouseDto) {

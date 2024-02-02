@@ -35,18 +35,17 @@ export class PieceService {
   }
 
   async findOne(id: string) {
-    await this.piecesDao.find(id);
+    return await this.piecesDao.find(id);
   }
 
   async update(id: string, updatePieceDto: UpdatePieceDto) {
-    await this.piecesDao.update(id, updatePieceDto);
+    return await this.piecesDao.update(id, updatePieceDto);
   }
 
   async remove(id: string) {
     await this.piecesDao.delete(id);
   }
   async findByWarehouse(id: string) {
-    console.log(id);
     return await this.piecesDao.findByWarehouseId(id)
   }
 }

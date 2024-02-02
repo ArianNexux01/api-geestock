@@ -69,9 +69,24 @@ export class OrderDao {
         });
     }
 
-    async update(id: string, data: Orders): Promise<Orders> {
-        const user = this.prisma.orders.update({ where: { id }, data });
-        return user
+    async update(id: string, data: any): Promise<Orders> {
+        const ordersPieceData = data.request.map(e => ({
+            pieceId: e.pieceId,
+            quantity: e.quantity,
+            price: e.price
+        }))
+
+        return this.prisma.orders.update({
+            where: {
+                id
+            },
+            data: {
+                description: data.description,
+                number_order: data.number_order,
+                imbl_awb: data.imbl_awb,
+                reference: data.reference,
+            }
+        });
     }
 
     async delete(id: string): Promise<Orders> {

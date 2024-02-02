@@ -18,7 +18,15 @@ export class PieceDao {
     }
 
     async find(id: string): Promise<Pieces | null> {
-        return this.prisma.pieces.findFirst({ where: { id } });
+        return this.prisma.pieces.findFirst({
+            where: { id },
+            include: {
+                category: true,
+                subcategory: true,
+                supplier: true,
+                warehouse: true
+            }
+        });
     }
 
     async update(id: string, data: Pieces): Promise<Pieces> {
@@ -84,7 +92,7 @@ export class PieceDao {
             where: {
                 warehouseId,
                 partNumber
-            },
+            }
         })
         return piecesByWarehousePartNumber
     }

@@ -7,7 +7,6 @@ import { Exclude } from 'class-transformer';
 export class UpdateRequestDTO extends CreateRequestDTO {
     @IsString()
     @IsNotEmpty()
-    @MinLength(9)
     @ApiProperty({
         example: 'Frank, LDA.',
     })

@@ -142,11 +142,18 @@ export class RequestService {
       await this.requestsDao.updateQuantityGivenInRequestPieces(requestPiece.id, sumQuantityGiven)
 
       isRequestFinished = requestPiece.quantity == piece.quantityGiven
-      console.log(isRequestFinished, requestPiece.quantity, piece.quantityGiven)
     }
-    console.log(isRequestFinished)
     await this.requestsDao.changeStateOfRequest(id, isRequestFinished ? RequestStatus.FINISHED : RequestStatus.ONGOING);
-    return returnmentData
+    const warehouseOutcomming = request.warehouseOutcomming.name
+    const warehouseIncomming = request.warehouseIncomming.name
+
+    return {
+      returnmentData,
+      warehouseIncomming,
+      warehouseOutcomming,
+      numberPr: request.numberPr,
+      createdAt: request.created_at,
+    }
   }
 
   async getInvoices() {

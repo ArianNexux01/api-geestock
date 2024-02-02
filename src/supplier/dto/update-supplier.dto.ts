@@ -7,8 +7,6 @@ import { Exclude } from 'class-transformer';
 export class UpdateSupplierDto extends CreateSupplierDto {
     @IsString()
     @IsNotEmpty()
-    @MinLength(9)
-    @MaxLength(15)
     @ApiProperty({
         example: 'Frank, LDA.',
     })

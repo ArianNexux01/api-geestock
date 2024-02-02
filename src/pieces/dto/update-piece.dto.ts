@@ -7,8 +7,7 @@ import { Exclude } from 'class-transformer';
 export class UpdatePieceDto extends CreatePieceDto {
     @IsString()
     @IsNotEmpty()
-    @MinLength(9)
-    @MaxLength(15)
+
     @ApiProperty({
         example: 'Frank, LDA.',
     })

@@ -24,11 +24,11 @@ export class TransportService {
   }
 
   async findOne(id: string) {
-    await this.transportsDao.find(id);
+    return await this.transportsDao.find(id);
   }
 
   async update(id: string, updateTransportDto: UpdateTransportDto) {
-    await this.transportsDao.update(id, updateTransportDto);
+    return await this.transportsDao.update(id, updateTransportDto);
   }
 
   async remove(id: string) {

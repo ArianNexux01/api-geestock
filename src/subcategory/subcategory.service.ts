@@ -42,7 +42,7 @@ export class SubcategoryService {
   }
 
   async findOne(id: string) {
-    await this.subcategoriesDao.find(id);
+    return await this.subcategoriesDao.find(id);
   }
 
 

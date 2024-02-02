@@ -24,7 +24,7 @@ export class CategoryService {
   }
 
   async findOne(id: string) {
-    await this.categoriesDao.find(id);
+    return await this.categoriesDao.find(id);
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {

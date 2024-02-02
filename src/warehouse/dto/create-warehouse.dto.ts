@@ -6,8 +6,7 @@ export class CreateWarehouseDto {
 
     @IsString()
     @IsNotEmpty()
-    @MinLength(4)
-    @MaxLength(80)
+
     @ApiProperty({
         example: 'Frank',
     })

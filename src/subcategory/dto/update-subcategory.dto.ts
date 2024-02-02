@@ -5,10 +5,7 @@ import { IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator"
 import { Exclude } from 'class-transformer';
 
 export class UpdateSubcategoryDto extends CreateSubcategoryDto {
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(9)
-    @MaxLength(15)
+
     @ApiProperty({
         example: 'Frank, LDA.',
     })

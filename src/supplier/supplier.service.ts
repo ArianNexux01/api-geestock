@@ -24,7 +24,7 @@ export class SupplierService {
   }
 
   async findOne(id: string) {
-    await this.subcategoriesDao.find(id);
+    return await this.subcategoriesDao.find(id);
   }
 
   async update(id: string, updateSupplierDto: UpdateSupplierDto) {

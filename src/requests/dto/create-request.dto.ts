@@ -45,7 +45,6 @@ export class CreateRequestDTO {
         quantity: number
     }
 
-    @IsNotEmpty()
     @ApiProperty({
         example: "10",
     })

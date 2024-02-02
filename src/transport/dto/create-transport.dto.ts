@@ -5,9 +5,6 @@ export class CreateTransportDto {
 
 
     @IsString()
-    @IsNotEmpty()
-    @MinLength(4)
-    @MaxLength(80)
     @ApiProperty({
         example: 'Truck',
     })

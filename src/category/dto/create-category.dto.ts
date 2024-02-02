@@ -6,8 +6,6 @@ export class CreateCategoryDto {
 
     @IsString()
     @IsNotEmpty()
-    @MinLength(4)
-    @MaxLength(80)
     @ApiProperty({
         example: 'Frank',
     })
@@ -20,7 +18,7 @@ export class CreateCategoryDto {
     })
     code: string
 
-    
+
 
 
 }

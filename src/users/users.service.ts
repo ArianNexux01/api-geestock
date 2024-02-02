@@ -30,7 +30,7 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    await this.usersDao.find(id);
+    return await this.usersDao.find(id);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

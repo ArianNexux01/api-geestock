@@ -76,6 +76,11 @@ export class RequestDao {
                         name: true
                     }
                 },
+                warehouseOutcomming: {
+                    select: {
+                        name: true
+                    }
+                },
                 RequestsPieces: {
                     select: {
                         id: true,
@@ -94,9 +99,37 @@ export class RequestDao {
         });
     }
 
-    async update(id: string, data: Requests): Promise<any> {
-        const request = this.prisma.requests.update({ where: { id }, data });
-        return request
+    async update(id: string, data: any): Promise<any> {
+        const piecesData = data.request.map(e => ({
+            pieceId: e.pieceId,
+            quantity: e.quantity
+        }))
+        return this.prisma.requests.update({
+            where: { id },
+            data: {
+                state: data.state,
+                name: data.name,
+
+                RequestsPieces: {
+                    createMany: {
+                        data: piecesData
+                    }
+
+                },
+                warehouseIncomming: {
+                    connect: {
+                        id: data.warehouseIdIncomming
+                    }
+                },
+                warehouseOutcomming: {
+                    connect: {
+                        id: data.warehouseIdOutcomming
+                    }
+                },
+            },
+
+
+        });
     }
 
     async delete(id: string): Promise<any> {

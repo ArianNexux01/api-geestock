@@ -5,10 +5,8 @@ import { IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator"
 import { Exclude } from 'class-transformer';
 
 export class UpdateTransportDto extends CreateTransportDto {
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(9)
-    @MaxLength(15)
+
+
     @ApiProperty({
         example: 'Truck.',
     })

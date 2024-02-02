@@ -7,13 +7,12 @@ import { Exclude } from 'class-transformer';
 export class UpdateOrderDto extends CreateOrderDto {
     @IsString()
     @IsNotEmpty()
-    @MinLength(9)
-    @MaxLength(15)
+
     @ApiProperty({
         example: 'Frank, LDA.',
     })
     id: string
-    
+
     @Exclude()
     created_at: Date
     @Exclude()
