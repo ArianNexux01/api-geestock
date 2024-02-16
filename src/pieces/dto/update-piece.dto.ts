@@ -13,6 +13,12 @@ export class UpdatePieceDto extends CreatePieceDto {
     })
     id: string
 
+
+    @ApiProperty({
+        example: '001',
+    })
+    userId: string
+
     @Exclude()
     created_at: Date
     @Exclude()

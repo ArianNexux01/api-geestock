@@ -18,6 +18,14 @@ export class CreateWarehouseDto {
     })
     description: string
 
+
+    @IsString()
+    @ApiProperty({
+        example: 'Armazem de vendas',
+    })
+    userId: string
+
+
     @ApiProperty({
         example: 'Angola',
     })

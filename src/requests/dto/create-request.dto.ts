@@ -45,8 +45,10 @@ export class CreateRequestDTO {
         quantity: number
     }
 
+    @IsString()
     @ApiProperty({
         example: "10",
+        default: "Disponivel"
     })
     state: string
 
@@ -55,6 +57,14 @@ export class CreateRequestDTO {
         example: '001',
     })
     numberPr: string
+
+
+    @IsString()
+    @ApiProperty({
+        example: "001"
+    })
+    userId: string
+
 }
 
 

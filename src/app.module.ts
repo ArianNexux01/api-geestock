@@ -12,9 +12,16 @@ import { TransportModule } from './transport/transport.module';
 import { OrderModule } from './orders/order.module';
 import { SupplierModule } from './supplier/supplier.module';
 import { RequestModule } from './requests/request.module';
+import { LogsActivitiesModule } from './logs-activities/logs-activities.module';
+import { AlertsModule } from './alerts/alerts.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { EmailService } from './email/email.service';
+
 @Module({
-  imports: [UsersModule, AuthModule, RequestModule, WarehouseModule, PieceModule, CategoryModule, SubcategoryModule, TransportModule, OrderModule, SupplierModule],
+
+  imports: [UsersModule, AuthModule, RequestModule, WarehouseModule, PieceModule, CategoryModule, SubcategoryModule, TransportModule, OrderModule, SupplierModule, LogsActivitiesModule, AlertsModule, DashboardModule],
   controllers: [AppController],
   providers: [AppService],
+
 })
 export class AppModule { }

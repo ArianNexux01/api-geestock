@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersDao } from './users.dao';
-import { hash } from 'bcrypt';
+import { hash } from 'bcryptjs';
 import { v4 as uuid } from 'uuid';
 @Injectable()
 export class UsersService {
@@ -35,6 +35,7 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     await this.usersDao.update(id, updateUserDto);
+
   }
 
   async remove(id: string) {

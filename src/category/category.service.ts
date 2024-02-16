@@ -2,12 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryDao } from './category.dao';
-import { hash } from 'bcrypt';
-import { v4 as uuid } from 'uuid';
+
+import { LogsActivitiesDao } from 'src/logs-activities/logs-activities.dao';
 @Injectable()
 export class CategoryService {
-  constructor(private categoriesDao: CategoryDao) { }
+  constructor(
+    private categoriesDao: CategoryDao,
+    private logsActivitiesDao: LogsActivitiesDao) { }
   async create(createCategoryDto: CreateCategoryDto) {
+    await this.logsActivitiesDao.create({
+      userId: createCategoryDto.userId,
+      description: `Criou a categoria ${createCategoryDto.name} com o codigo ${createCategoryDto.code}`
+    })
+    delete createCategoryDto.userId
     await this.categoriesDao.create(createCategoryDto);
   }
 
@@ -28,6 +35,10 @@ export class CategoryService {
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
+    await this.logsActivitiesDao.create({
+      userId: updateCategoryDto.userId,
+      description: `Actualizou a categoria ${updateCategoryDto.name} com o codigo ${updateCategoryDto.code}`
+    })
     await this.categoriesDao.update(id, updateCategoryDto);
   }
 

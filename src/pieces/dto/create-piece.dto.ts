@@ -98,6 +98,13 @@ export class CreatePieceDto {
 
 
     @IsString()
+    @ApiProperty({
+        example: '001',
+    })
+    userId: string
+
+
+    @IsString()
     @IsNotEmpty()
     @ApiProperty({
         example: 'Teste, LDA',

@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  // binaryTargets = ["native", "windows"]
 }
 
 datasource db {
@@ -22,8 +23,9 @@ model Users {
   UsersRoles  UsersRoles[]
   warehouse   Warehouse?   @relation(fields: [warehouseId], references: [id])
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+  LogsActivities LogsActivities[]
 
   @@map("users")
 }
@@ -78,6 +80,7 @@ model Warehouse {
 
   Requests      Requests[] @relation("warehouseIncommingRequest")
   RequestsModel Requests[] @relation("warehouseOutcommingRequest")
+  Alerts        Alerts[]
 
   @@map("warehouse")
 }
@@ -109,6 +112,7 @@ model Pieces {
   updated_at     DateTime         @updatedAt
   OrdersPiece    OrdersPiece[]
   RequestsPieces RequestsPieces[]
+  Alerts         Alerts[]
 
   @@map("pieces")
 }
@@ -233,6 +237,33 @@ model InvoiceReciepment {
   number_series   String?
   requestPiecesId String
   request         RequestsPieces @relation(fields: [requestPiecesId], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model LogsActivities {
+  id String @id @default(uuid())
+
+  userId String
+  user   Users  @relation(fields: [userId], references: [id])
+
+  description String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model Alerts {
+  id String @id @default(uuid())
+
+  warehouseId String
+  pieceId     String
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  piece     Pieces    @relation(fields: [pieceId], references: [id])
+
+  description String
 
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt

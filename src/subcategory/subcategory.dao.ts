@@ -9,7 +9,7 @@ import { ListSubcategoryDto } from './dto/list-subcategory.dto';
 export class SubcategoryDao {
     constructor(private readonly prisma: PrismaService) { }
 
-    async create(data: CreateSubcategoryDto): Promise<any> {
+    async create(data: any): Promise<any> {
 
         return this.prisma.subCategories.create({
             data: {

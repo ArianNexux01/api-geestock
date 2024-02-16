@@ -1,18 +1,26 @@
 import { Prisma, Pieces } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { LogsActivitiesDao } from 'src/logs-activities/logs-activities.dao';
 
 @Injectable()
 export class PieceDao {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+    ) { }
 
     async create(data: any): Promise<any> {
 
         return this.prisma.pieces.create({ data });
+
     }
 
     async list(): Promise<Pieces[]> {
-        const pieces = await this.prisma.pieces.findMany();
+        const pieces = await this.prisma.pieces.findMany({
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
 
         return pieces;
     }
@@ -46,7 +54,7 @@ export class PieceDao {
                 quantity: pieceFound.quantity + quantity
             }
         });
-        console.log(piece)
+
         return piece
     }
 
@@ -82,6 +90,9 @@ export class PieceDao {
     async findByWarehouseId(warehouseId: string): Promise<any> {
         const piecesByWarehouse = await this.prisma.pieces.findMany({
             where: { warehouseId },
+            orderBy: {
+                created_at: 'desc'
+            }
         })
         console.log(piecesByWarehouse)
         return piecesByWarehouse
@@ -95,5 +106,9 @@ export class PieceDao {
             }
         })
         return piecesByWarehousePartNumber
+    }
+
+    async count(): Promise<any> {
+        return this.prisma.pieces.count();
     }
 }

@@ -2,12 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { WarehouseDao } from './warehouse.dao';
-import { hash } from 'bcrypt';
-import { v4 as uuid } from 'uuid';
+
+import { LogsActivitiesDao } from 'src/logs-activities/logs-activities.dao';
 @Injectable()
 export class WarehouseService {
-  constructor(private warehousesDao: WarehouseDao) { }
+  constructor(
+    private warehousesDao: WarehouseDao,
+    private logsActivitiesDao: LogsActivitiesDao
+  ) { }
   async create(createWarehouseDto: CreateWarehouseDto) {
+
+    await this.logsActivitiesDao.create({
+      userId: createWarehouseDto.userId,
+      description: `Criou o armazem ${createWarehouseDto.name} com o codigo ${createWarehouseDto.code}`
+    })
+
+    delete createWarehouseDto.userId
     await this.warehousesDao.create(createWarehouseDto);
   }
 
@@ -33,11 +43,15 @@ export class WarehouseService {
   }
 
   async findOne(id: string) {
-    return  await this.warehousesDao.find(id);
+    return await this.warehousesDao.find(id);
   }
 
   async update(id: string, updateWarehouseDto: UpdateWarehouseDto) {
     await this.warehousesDao.update(id, updateWarehouseDto);
+    await this.logsActivitiesDao.create({
+      userId: updateWarehouseDto.userId,
+      description: `Actualizou o armazem ${updateWarehouseDto.name} com o codigo ${updateWarehouseDto.code}`
+    })
   }
 
   async remove(id: string) {

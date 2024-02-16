@@ -13,6 +13,12 @@ export class UpdateOrderDto extends CreateOrderDto {
     })
     id: string
 
+
+    @ApiProperty({
+        example: 'Frank, LDA.',
+    })
+    userId: string
+
     @Exclude()
     created_at: Date
     @Exclude()

@@ -122,4 +122,8 @@ export class OrderDao {
         return user
 
     }
+
+    async count(): Promise<any> {
+        return this.prisma.orders.count();
+    }
 }

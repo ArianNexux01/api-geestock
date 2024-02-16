@@ -29,6 +29,12 @@ export class CreateUserDto {
   company: string;
 
   @IsString()
+  @ApiProperty({
+    example: '001',
+  })
+  userId: string
+
+  @IsString()
   @IsNotEmpty()
   @ApiProperty({
     example: 'b40e442d-61d3-43cd-8b9f-37578f7d3d7b',

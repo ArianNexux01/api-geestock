@@ -22,7 +22,11 @@ export class AcceptRequestDTO {
         pieceId: string
     }[]
 
-
+    @IsString()
+    @ApiProperty({
+        example: "001"
+    })
+    userId: string
 
 
 }

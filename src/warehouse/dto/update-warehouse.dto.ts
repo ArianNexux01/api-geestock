@@ -13,6 +13,11 @@ export class UpdateWarehouseDto extends CreateWarehouseDto {
     })
     id: string
 
+    @ApiProperty({
+        example: 'Frank, LDA.',
+    })
+    userId: string
+
     @Exclude()
     created_at: Date
     @Exclude()

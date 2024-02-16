@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CreateRequestDTO } from './dto/create-request.dto';
 import { UpdateRequestDTO } from './dto/update-request.dto';
 import { RequestDao } from './request.dao';
-import { hash } from 'bcrypt';
-import { v4 as uuid } from 'uuid';
+
 import { PieceDao } from 'src/pieces/piece.dao';
 import { AcceptRequestDTO } from './dto/accept-request.dto';
 import { InvoiceReciepmentDao } from './invoice.dao';
+import { LogsActivitiesDao } from 'src/logs-activities/logs-activities.dao';
+import { AlertsDao } from 'src/alerts/alerts.dao';
+import { EmailService } from 'src/email/email.service';
 
 enum RequestStatus {
   ONGOING = "Em curso",
@@ -19,9 +21,17 @@ export class RequestService {
     private requestsDao: RequestDao,
     private invoiceRecipment: InvoiceReciepmentDao,
     private pieceDao: PieceDao,
+    private logsActivitiesDao: LogsActivitiesDao,
+    private alertsDao: AlertsDao,
+    private emailService: EmailService
+
   ) { }
   async create(createPieceDto: CreateRequestDTO) {
     await this.requestsDao.create(createPieceDto);
+    await this.logsActivitiesDao.create({
+      userId: createPieceDto.userId,
+      description: `Realizou uma requisição com numero de PR ${createPieceDto.numberPr}`
+    })
   }
 
   async findAll() {
@@ -36,6 +46,10 @@ export class RequestService {
 
   async update(id: string, updateRequestDto: UpdateRequestDTO) {
     await this.requestsDao.update(id, updateRequestDto);
+    await this.logsActivitiesDao.create({
+      userId: updateRequestDto.userId,
+      description: `Actualizou uma requisição com numero de PR ${updateRequestDto.numberPr}`
+    })
   }
 
   async remove(id: string) {
@@ -51,7 +65,7 @@ export class RequestService {
   }
 
   async acceptRequest(id: string, requestData: AcceptRequestDTO): Promise<any> {
-
+    await this.emailService.sendMail("bentojulio2022@gmail.com", "REQUISIÇÃO ACEITE", "ESTA REQUISICAO FOI ACEITE COM SUCESSO")
     /**
      * 
      * WarehouseIncomming o armazem que recebe a requisição
@@ -67,8 +81,27 @@ export class RequestService {
       const pieceData = await this.pieceDao.find(piece.pieceId)
       const requestPiece = await this.requestsDao.findByRequestAndPieceId(id, piece.pieceId)
       //if( pieceData.quantity < piece.quantityGiven) throw new Error("Quantity must be Less than quantity given")
-      await this.pieceDao.updateQuantity(piece.pieceId, pieceData.quantity - Number(piece.quantityGiven))
-      //Verifica se já existe essa peça pelo partNumber no mesmo armazem
+      const leftQuantityOfPieces = pieceData.quantity - Number(piece.quantityGiven)
+      await this.pieceDao.updateQuantity(piece.pieceId, leftQuantityOfPieces)
+
+      if (pieceData.target >= leftQuantityOfPieces) {
+        this.alertsDao.create({
+          description: `A Peça ${pieceData.name} atingiu o set target.`,
+          pieceId: pieceData.id,
+          warehouseId: request.warehouseOutcomming.id
+        })
+        await this.emailService.sendMail("bentojulio2022@gmail.com", "PEÇA ATINGIU O SEU TARGET", `A Peça ${pieceData.name} atingiu o set target.`)
+      }
+
+      if (pieceData.min >= leftQuantityOfPieces) {
+        this.alertsDao.create({
+          description: `A Peça ${pieceData.name} atingiu a sua quantidade mínina.`,
+          pieceId: pieceData.id,
+          warehouseId: request.warehouseOutcomming.id
+        })
+        await this.emailService.sendMail("bentojulio2022@gmail.com", "PEÇA ATINGIU A SUA QUANTIDADE MINIMA", `A Peça ${pieceData.name} atingiu a sua quantidade mínina.`)
+
+      }
       piecesOfRequest = await this.pieceDao.findByPartNumberAndWarehouse(request.warehouseIdOutcomming, pieceData.partNumber)
 
 
@@ -146,6 +179,11 @@ export class RequestService {
     await this.requestsDao.changeStateOfRequest(id, isRequestFinished ? RequestStatus.FINISHED : RequestStatus.ONGOING);
     const warehouseOutcomming = request.warehouseOutcomming.name
     const warehouseIncomming = request.warehouseIncomming.name
+
+    await this.logsActivitiesDao.create({
+      userId: requestData.userId,
+      description: "Requisição aceite"
+    })
 
     return {
       returnmentData,

@@ -10,11 +10,18 @@ export class CreateTransportDto {
     })
     name: string
 
+    @IsString()
+    @ApiProperty({
+        example: '0001',
+    })
+    userId: string
+
     @IsNotEmpty()
     @ApiProperty({
         example: '0001',
     })
     code: string
+
 
 
 }

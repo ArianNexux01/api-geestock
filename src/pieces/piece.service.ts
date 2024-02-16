@@ -2,12 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { CreatePieceDto } from './dto/create-piece.dto';
 import { UpdatePieceDto } from './dto/update-piece.dto';
 import { PieceDao } from './piece.dao';
-import { hash } from 'bcrypt';
-import { v4 as uuid } from 'uuid';
+import { LogsActivitiesDao } from 'src/logs-activities/logs-activities.dao';
 @Injectable()
 export class PieceService {
-  constructor(private piecesDao: PieceDao) { }
+  constructor(
+    private piecesDao: PieceDao,
+    private logsActivitiesDao: LogsActivitiesDao
+  ) {
+
+  }
   async create(createPieceDto: CreatePieceDto) {
+    await this.logsActivitiesDao.create({
+      userId: createPieceDto.userId,
+      description: `Criou a peça ${createPieceDto.name} com o PartNumber ${createPieceDto.partNumber}`
+    })
+    delete createPieceDto.userId
     await this.piecesDao.create(createPieceDto);
   }
 
@@ -39,6 +48,11 @@ export class PieceService {
   }
 
   async update(id: string, updatePieceDto: UpdatePieceDto) {
+    await this.logsActivitiesDao.create({
+      userId: updatePieceDto.userId,
+      description: `Actualizou a peça ${updatePieceDto.name} com o PartNumber ${updatePieceDto.partNumber}`
+    })
+    delete updatePieceDto.userId
     return await this.piecesDao.update(id, updatePieceDto);
   }
 

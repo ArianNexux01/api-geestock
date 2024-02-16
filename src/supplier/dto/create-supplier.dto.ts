@@ -12,12 +12,18 @@ export class CreateSupplierDto {
     })
     name: string
 
+    @IsString()
+    @ApiProperty({
+        example: "001"
+    })
+    userId: string
+
+
     @IsNotEmpty()
     @ApiProperty({
         example: '0001',
     })
     code: string
-
 
 
 }

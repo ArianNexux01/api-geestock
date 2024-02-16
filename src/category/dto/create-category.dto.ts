@@ -11,6 +11,12 @@ export class CreateCategoryDto {
     })
     name: string
 
+    @IsString()
+    @ApiProperty({
+        example: 'Armazem de vendas',
+    })
+    userId: string
+
 
     @IsNotEmpty()
     @ApiProperty({

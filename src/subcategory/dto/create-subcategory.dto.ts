@@ -13,6 +13,14 @@ export class CreateSubcategoryDto {
     })
     name: string
 
+
+    @IsString()
+    @ApiProperty({
+        example: "001"
+    })
+    userId: string
+
+
     @IsString()
     @ApiProperty({
         example: 'Armazem de vendas',
@@ -24,6 +32,8 @@ export class CreateSubcategoryDto {
         example: '0001',
     })
     code: string
+
+
 
 
 

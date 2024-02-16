@@ -28,6 +28,12 @@ export class CreateOrderDto {
     })
     number_order: string
 
+    @IsString()
+    @ApiProperty({
+        example: '001',
+    })
+    userId: string
+
     @IsNotEmpty()
     @ApiProperty({
         example: [{
@@ -48,6 +54,9 @@ export class CreateOrderDto {
         example: 'Finalizada',
     })
     state: string
+
+
+
 
 
 }

@@ -29,4 +29,8 @@ export class WarehouseDao {
     async delete(id: string): Promise<Warehouse> {
         return this.prisma.warehouse.delete({ where: { id } });
     }
+
+    async count(): Promise<any> {
+        return this.prisma.warehouse.count();
+    }
 }

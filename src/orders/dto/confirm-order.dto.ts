@@ -13,6 +13,11 @@ export class ConfirmOrderDTO {
         quantity: number
     }]
 
+    @IsString()
+    @ApiProperty({
+        example: "id"
+    })
+    userId: string
 
 }
 

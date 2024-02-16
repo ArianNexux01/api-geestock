@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { compare } from 'bcrypt'
+import { compare } from 'bcryptjs'
 import { UsersDao } from 'src/users/users.dao';
 @Injectable()
 export class AuthService {

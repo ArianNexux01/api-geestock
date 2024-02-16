@@ -78,6 +78,7 @@ export class RequestDao {
                 },
                 warehouseOutcomming: {
                     select: {
+                        id: true,
                         name: true
                     }
                 },
@@ -228,7 +229,7 @@ export class RequestDao {
     async updateQuantityGivenInRequestPieces(id: string, quantityGiven: number) {
         const request = this.prisma.requestsPieces.update({
             where: { id },
-            data: { quantityGiven }
+            data: { quantityGiven: Number(quantityGiven) }
         })
 
         return request
@@ -241,5 +242,9 @@ export class RequestDao {
                 pieceId
             }
         })
+    }
+
+    async count(): Promise<any> {
+        return this.prisma.requests.count();
     }
 }
