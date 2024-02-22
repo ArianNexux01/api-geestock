@@ -18,8 +18,8 @@ export class SupplierService {
     await this.subcategoriesDao.create(createSupplierDto);
   }
 
-  async findAll() {
-    const subcategories = await this.subcategoriesDao.list();
+  async findAll(searchParam: string) {
+    const subcategories = await this.subcategoriesDao.list(searchParam);
     const subcategoriesToReturn = subcategories.map(e => ({
       id: e.id,
       name: e.name,

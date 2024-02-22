@@ -5,7 +5,7 @@ import { UpdateLogsActivityDto } from './dto/update-logs-activity.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('LogsActivities')
-@Controller('logs-activities')
+@Controller('api/logs-activities')
 export class LogsActivitiesController {
   constructor(private readonly logsActivitiesService: LogsActivitiesService) { }
 

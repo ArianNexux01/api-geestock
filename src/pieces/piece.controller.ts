@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { PieceService } from './piece.service';
 import { CreatePieceDto } from './dto/create-piece.dto';
 import { UpdatePieceDto } from './dto/update-piece.dto';
@@ -6,7 +6,7 @@ import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiT
 import { Piece } from './entities/piece.entity';
 
 @ApiTags('Piece')
-@Controller('piece')
+@Controller('api/piece')
 export class PieceController {
   constructor(private readonly pieceService: PieceService) { }
 
@@ -23,8 +23,8 @@ export class PieceController {
   }
 
   @Get()
-  findAll() {
-    return this.pieceService.findAll();
+  findAll(@Query('searchParam') searchParam?: string) {
+    return this.pieceService.findAll(searchParam);
   }
 
   @Get(':id')
@@ -33,8 +33,8 @@ export class PieceController {
   }
 
   @Get('/warehouse/:id')
-  findByWarehouse(@Param('id') id: string) {
-    return this.pieceService.findByWarehouse(id);
+  findByWarehouse(@Param('id') id: string, @Query('searchParam') searchParam?: string) {
+    return this.pieceService.findByWarehouse(id, searchParam);
   }
 
 

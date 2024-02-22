@@ -1,14 +1,25 @@
-import { PartialType, OmitType } from '@nestjs/swagger';
+import { PartialType, OmitType, ApiProperty } from '@nestjs/swagger';
 import { CreateUserDto } from './create-user.dto';
-export class UpdateUserDto extends
-  CreateUserDto {
-  id: string;
-  name: string;
-  position: string;
-  password: string;
-  email: string;
-  warehouseId: string
-  company: string;
-  created_at: Date;
-  updated_at: Date;
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsEnum,
+  IsString,
+  IsOptional,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+import { Exclude } from 'class-transformer';
+export class UpdateUserDto extends CreateUserDto {
+
+
+  @ApiProperty({
+    example: '001',
+  })
+  userId: string
+
+  @Exclude()
+  created_at: Date
+  @Exclude()
+  updated_at: Date
 }

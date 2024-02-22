@@ -29,7 +29,45 @@ export class OrderDao {
         });
     }
 
-    async list(): Promise<any[]> {
+    async list(searchParam: string): Promise<any[]> {
+        if (searchParam !== undefined && searchParam !== '') {
+            const orders = await this.prisma.orders.findMany({
+                where: {
+                    OR: [
+                        {
+                            imbl_awb: {
+                                contains: searchParam,
+                            }
+                        },
+                        {
+                            description: {
+                                contains: searchParam,
+                            }
+                        }
+                    ]
+                },
+                include: {
+                    OrdersPiece: {
+                        select: {
+                            orderId: true,
+                            pieceId: true,
+                            quantity: true,
+                            piece: {
+                                select: {
+                                    name: true,
+                                    partNumber: true,
+                                }
+                            }
+                        }
+                    }
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            });
+
+            return orders;
+        }
         const orders = await this.prisma.orders.findMany({
             include: {
                 OrdersPiece: {
@@ -39,11 +77,16 @@ export class OrderDao {
                         quantity: true,
                         piece: {
                             select: {
-                                name: true
+                                name: true,
+                                partNumber: true,
+
                             }
                         }
                     }
                 }
+            },
+            orderBy: {
+                created_at: 'desc'
             }
         });
 
@@ -60,7 +103,9 @@ export class OrderDao {
                         quantity: true,
                         piece: {
                             select: {
-                                name: true
+                                name: true,
+                                partNumber: true,
+
                             }
                         }
                     }

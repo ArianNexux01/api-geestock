@@ -15,12 +15,37 @@ export class PieceDao {
 
     }
 
-    async list(): Promise<Pieces[]> {
-        const pieces = await this.prisma.pieces.findMany({
-            orderBy: {
-                created_at: 'desc'
-            }
-        });
+    async list(searchParam?: string): Promise<Pieces[]> {
+        let pieces: any;
+        if (searchParam !== "" && searchParam !== undefined) {
+            pieces = await this.prisma.pieces.findMany({
+                orderBy: {
+                    created_at: 'desc'
+                },
+                where: {
+                    OR: [
+                        {
+                            partNumber: {
+                                contains: searchParam,
+                            },
+                        },
+                        {
+                            name: {
+                                contains: searchParam,
+                            },
+                        },
+                    ]
+                },
+
+            });
+        } else {
+
+            pieces = await this.prisma.pieces.findMany({
+                orderBy: {
+                    created_at: 'desc'
+                }
+            });
+        }
 
         return pieces;
     }
@@ -87,7 +112,35 @@ export class PieceDao {
         return piece
     }
 
-    async findByWarehouseId(warehouseId: string): Promise<any> {
+    async findByWarehouseId(warehouseId: string, searchParam: string): Promise<any> {
+        console.log(warehouseId, searchParam);
+        if (searchParam !== "" && searchParam !== undefined) {
+            const piecesByWarehouse = await this.prisma.pieces.findMany({
+                where: {
+                    AND: [
+                        { warehouseId },
+                        {
+                            OR: [
+                                {
+                                    partNumber: {
+                                        contains: searchParam,
+                                    },
+                                },
+                                {
+                                    name: {
+                                        contains: searchParam,
+                                    },
+                                },
+                            ]
+                        }
+                    ]
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            })
+            return piecesByWarehouse
+        }
         const piecesByWarehouse = await this.prisma.pieces.findMany({
             where: { warehouseId },
             orderBy: {

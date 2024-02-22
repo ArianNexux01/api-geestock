@@ -9,7 +9,7 @@ import {
 import { loginDto } from './auth.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
 
-@Controller('auth')
+@Controller('api/auth')
 @ApiTags('Authentication')
 export class AuthController {
   constructor(private authService: AuthService) { }

@@ -6,7 +6,7 @@ import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiT
 import { Transport } from './entities/transport.entity';
 
 @ApiTags('Transport')
-@Controller('transport')
+@Controller('api/transport')
 export class TransportController {
   constructor(private readonly transportService: TransportService) { }
 

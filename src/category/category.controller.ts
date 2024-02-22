@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -6,7 +6,7 @@ import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiT
 import { Category } from './entities/category.entity';
 
 @ApiTags('Category')
-@Controller('category')
+@Controller('api/category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) { }
 
@@ -23,8 +23,8 @@ export class CategoryController {
   }
 
   @Get()
-  findAll() {
-    return this.categoryService.findAll();
+  findAll(@Query('searchParam') searchParam: string) {
+    return this.categoryService.findAll(searchParam);
   }
 
   @Get(':id')

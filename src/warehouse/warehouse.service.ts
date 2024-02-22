@@ -21,8 +21,8 @@ export class WarehouseService {
     await this.warehousesDao.create(createWarehouseDto);
   }
 
-  async findAll() {
-    const warehouses = await this.warehousesDao.list();
+  async findAll(searchParam: string) {
+    const warehouses = await this.warehousesDao.list(searchParam);
     const warehousesToReturn = warehouses.map(e => ({
       id: e.id,
       name: e.name,

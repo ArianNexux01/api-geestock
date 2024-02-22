@@ -39,7 +39,51 @@ export class RequestDao {
         });
     }
 
-    async list(): Promise<any[]> {
+    async list(searchParam: string): Promise<any[]> {
+        if (searchParam !== "" && searchParam !== undefined) {
+            const request = await this.prisma.requests.findMany({
+                where: {
+                    OR: [
+                        {
+                            numberPr: {
+                                contains: searchParam,
+                            },
+                        },
+                        {
+                            name: {
+                                contains: searchParam,
+                            },
+                        },
+                    ]
+                },
+                include: {
+                    warehouseIncomming: {
+                        select: {
+                            name: true
+                        }
+                    },
+                    RequestsPieces: {
+                        select: {
+                            pieceId: true,
+                            quantity: true,
+
+                            piece: {
+                                select: {
+                                    name: true,
+                                    price: true
+                                }
+                            }
+                        }
+                    }
+
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            });
+
+            return request;
+        }
         const request = await this.prisma.requests.findMany({
             include: {
                 warehouseIncomming: {
@@ -61,6 +105,9 @@ export class RequestDao {
                     }
                 }
 
+            },
+            orderBy: {
+                created_at: 'desc'
             }
         });
 
@@ -90,7 +137,12 @@ export class RequestDao {
                         piece: {
                             select: {
                                 name: true,
-                                price: true
+                                price: true,
+                                id: true,
+                                partNumber: true,
+                                description: true,
+                                locationInWarehouse: true,
+                                quantity: true
                             }
                         }
                     }
@@ -137,10 +189,24 @@ export class RequestDao {
         return this.prisma.requests.delete({ where: { id } });
     }
 
-    async findByIncommingWarehouse(id: string): Promise<any> {
+    async findByIncommingWarehouse(id: string, searchParam: string): Promise<any> {
         const request = await this.prisma.requests.findMany({
             where: {
-                warehouseIdIncomming: id
+                AND: [{
+                    warehouseIdIncomming: id,
+                    OR: [
+                        {
+                            numberPr: {
+                                contains: searchParam,
+                            },
+                        },
+                        {
+                            name: {
+                                contains: searchParam,
+                            },
+                        },
+                    ]
+                }]
             },
             include: {
                 RequestsPieces: {
@@ -148,7 +214,12 @@ export class RequestDao {
                         piece: {
                             select: {
                                 id: true,
-                                name: true
+                                name: true,
+                                partNumber: true,
+                                description: true,
+                                price: true,
+                                locationInWarehouse: true,
+                                quantity: true
                             }
                         },
                         quantity: true,
@@ -176,10 +247,24 @@ export class RequestDao {
         });
         return request;
     }
-    async findByOutcommingWarehouse(id: string): Promise<any> {
+    async findByOutcommingWarehouse(id: string, searchParam: string): Promise<any> {
         const request = await this.prisma.requests.findMany({
             where: {
-                warehouseIdOutcomming: id
+                AND: [{
+                    warehouseIdOutcomming: id,
+                    OR: [
+                        {
+                            numberPr: {
+                                contains: searchParam,
+                            },
+                        },
+                        {
+                            name: {
+                                contains: searchParam,
+                            },
+                        },
+                    ]
+                }]
             },
             include: {
                 RequestsPieces: {
@@ -187,7 +272,10 @@ export class RequestDao {
                         piece: {
                             select: {
                                 id: true,
-                                name: true
+                                name: true,
+                                partNumber: true,
+                                description: true,
+                                price: true
                             }
                         },
                         quantity: true,

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -7,7 +7,7 @@ import { Order } from './entities/order.entity';
 import { ConfirmOrderDTO } from './dto/confirm-order.dto';
 
 @ApiTags('Order')
-@Controller('order')
+@Controller('api/order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) { }
 
@@ -24,8 +24,8 @@ export class OrderController {
   }
 
   @Get()
-  findAll() {
-    return this.orderService.findAll();
+  findAll(@Query("searchParam") searchParam: string) {
+    return this.orderService.findAll(searchParam);
   }
 
   @Get(':id')

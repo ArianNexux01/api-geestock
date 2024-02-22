@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { SubcategoryService } from './subcategory.service';
 import { CreateSubcategoryDto } from './dto/create-subcategory.dto';
 import { UpdateSubcategoryDto } from './dto/update-subcategory.dto';
@@ -6,7 +6,7 @@ import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiT
 import { Subcategory } from './entities/subcategory.entity';
 
 @ApiTags('Subcategory')
-@Controller('subcategory')
+@Controller('api/subcategory')
 export class SubcategoryController {
   constructor(private readonly subcategoryService: SubcategoryService) { }
 
@@ -23,8 +23,8 @@ export class SubcategoryController {
   }
 
   @Get()
-  findAll() {
-    return this.subcategoryService.findAll();
+  findAll(@Query('searchParam') searchParam: string) {
+    return this.subcategoryService.findAll(searchParam);
   }
 
   @Get(':id')

@@ -14,8 +14,8 @@ export class UsersService {
 
   }
 
-  async findAll() {
-    const users = await this.usersDao.list();
+  async findAll(searchParam: string) {
+    const users = await this.usersDao.list(searchParam);
     const usersToReturn = users.map(e => ({
       id: e.id,
       name: e.name,
@@ -34,6 +34,7 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
+    updateUserDto.password = await hash(updateUserDto.password, 4);
     await this.usersDao.update(id, updateUserDto);
 
   }

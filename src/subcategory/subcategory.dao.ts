@@ -23,10 +23,39 @@ export class SubcategoryDao {
 
     }
 
-    async list(): Promise<ListSubcategoryDto[]> {
+    async list(searchParam: string): Promise<ListSubcategoryDto[]> {
+        if (searchParam !== "" && searchParam !== undefined) {
+            const subcategory = await this.prisma.subCategories.findMany({
+                where: {
+                    OR: [
+                        {
+                            code: {
+                                contains: searchParam,
+                            },
+                        },
+                        {
+                            name: {
+                                contains: searchParam,
+                            },
+                        },
+                    ]
+                },
+                include: {
+                    category: true
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            });
+
+            return subcategory
+        }
         const subcategory = await this.prisma.subCategories.findMany({
             include: {
                 category: true
+            },
+            orderBy: {
+                created_at: 'desc'
             }
         });
 

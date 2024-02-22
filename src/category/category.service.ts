@@ -18,8 +18,8 @@ export class CategoryService {
     await this.categoriesDao.create(createCategoryDto);
   }
 
-  async findAll() {
-    const categories = await this.categoriesDao.list();
+  async findAll(searchParam: string) {
+    const categories = await this.categoriesDao.list(searchParam);
     const categoriesToReturn = categories.map(e => ({
       id: e.id,
       name: e.name,

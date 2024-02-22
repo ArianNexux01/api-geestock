@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { RequestService } from './request.service';
 import { CreateRequestDTO } from './dto/create-request.dto';
 import { UpdateRequestDTO } from './dto/update-request.dto';
@@ -7,7 +7,7 @@ import { Request } from './entities/request.entity';
 import { AcceptRequestDTO } from './dto/accept-request.dto';
 
 @ApiTags('Request')
-@Controller('request')
+@Controller('api/request')
 export class RequestController {
   constructor(private readonly requestService: RequestService) { }
 
@@ -24,8 +24,8 @@ export class RequestController {
   }
 
   @Get()
-  findAll() {
-    return this.requestService.findAll();
+  findAll(@Query('searchParam') searchParam: string) {
+    return this.requestService.findAll(searchParam);
   }
 
   @Get('/invoices')
@@ -52,13 +52,13 @@ export class RequestController {
   }
 
   @Get('/warehouseincomming/:id')
-  async getWarehouseIncomming(@Param('id') id: string) {
-    return await this.requestService.findByWarehouseIncommingId(id);
+  async getWarehouseIncomming(@Param('id') id: string, @Query('searchParam') searchParam: string) {
+    return await this.requestService.findByWarehouseIncommingId(id, searchParam);
   }
 
   @Get('/warehouseoutcomming/:id')
-  async getWarehouseOutcomming(@Param('id') id: string) {
-    return await this.requestService.findByWarehouseOutcommingId(id);
+  async getWarehouseOutcomming(@Param('id') id: string, @Query('searchParam') searchParam: string) {
+    return await this.requestService.findByWarehouseOutcommingId(id, searchParam);
   }
 
 

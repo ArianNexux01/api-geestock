@@ -11,8 +11,35 @@ export class SupplierDao {
         return this.prisma.suppliers.create({ data });
     }
 
-    async list(): Promise<Suppliers[]> {
-        const supplier = await this.prisma.suppliers.findMany();
+    async list(searchParam: string): Promise<Suppliers[]> {
+        if (searchParam !== "" && searchParam !== undefined) {
+            const supplier = await this.prisma.suppliers.findMany({
+                where: {
+                    OR: [
+                        {
+                            code: {
+                                contains: searchParam,
+                            },
+                        },
+                        {
+                            name: {
+                                contains: searchParam,
+                            },
+                        },
+                    ]
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            });
+            return supplier;
+
+        }
+        const supplier = await this.prisma.suppliers.findMany({
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
 
         return supplier;
     }

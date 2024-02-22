@@ -5,7 +5,7 @@ import { UpdateAlertDto } from './dto/update-alert.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Alerts')
-@Controller('alerts')
+@Controller('api/alerts')
 export class AlertsController {
   constructor(private readonly alertsService: AlertsService) { }
 

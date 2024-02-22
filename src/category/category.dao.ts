@@ -11,7 +11,31 @@ export class CategoryDao {
         return this.prisma.categories.create({ data });
     }
 
-    async list(): Promise<Categories[]> {
+    async list(searchParam: string): Promise<Categories[]> {
+        if (searchParam !== undefined && searchParam !== '') {
+            const categories = await this.prisma.categories.findMany({
+                where: {
+                    OR: [
+                        {
+                            code: {
+                                contains: searchParam,
+                            }
+                        },
+                        {
+                            name: {
+                                contains: searchParam,
+                            }
+                        }
+                    ]
+
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            });
+
+            return categories;
+        }
         const categories = await this.prisma.categories.findMany();
 
         return categories;

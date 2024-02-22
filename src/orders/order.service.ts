@@ -23,8 +23,8 @@ export class OrderService {
     })
   }
 
-  async findAll() {
-    const order = await this.orderDao.list();
+  async findAll(searchParam: string) {
+    const order = await this.orderDao.list(searchParam);
 
     return order;
   }

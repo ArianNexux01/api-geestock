@@ -12,7 +12,11 @@ export class AlertsDao {
     }
 
     async list(): Promise<Alerts[]> {
-        const alerts = await this.prisma.alerts.findMany();
+        const alerts = await this.prisma.alerts.findMany({
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
 
         return alerts;
     }

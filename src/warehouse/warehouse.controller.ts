@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Search, Query } from '@nestjs/common';
 import { WarehouseService } from './warehouse.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
@@ -6,9 +6,9 @@ import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiT
 import { Warehouse } from './entities/warehouse.entity';
 
 @ApiTags('Warehouse')
-@Controller('warehouse')
+@Controller('api/warehouse')
 export class WarehouseController {
-  constructor(private readonly warehouseService: WarehouseService) {}
+  constructor(private readonly warehouseService: WarehouseService) { }
 
   @ApiCreatedResponse({
     description: 'Warehouse registered successfully',
@@ -23,8 +23,8 @@ export class WarehouseController {
   }
 
   @Get()
-  findAll() {
-    return this.warehouseService.findAll();
+  findAll(@Query('searchParam') searchParam: string) {
+    return this.warehouseService.findAll(searchParam);
   }
 
   @Get(':id')

@@ -11,7 +11,41 @@ export class UsersDao {
         return this.prisma.users.create({ data });
     }
 
-    async list(): Promise<any[]> {
+    async list(searchParam: string): Promise<any[]> {
+
+        if (searchParam !== "" && searchParam !== undefined) {
+            const users = await this.prisma.users.findMany({
+                where: {
+                    OR: [
+                        {
+                            email: {
+                                contains: searchParam,
+                            },
+                        },
+                        {
+                            name: {
+                                contains: searchParam,
+                            },
+                        },
+                    ]
+                },
+                include: {
+                    warehouse: {
+                        select: {
+                            id: true,
+                            name: true,
+                            type: true,
+                            code: true,
+                        }
+                    }
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            });
+
+            return users;
+        }
         const users = await this.prisma.users.findMany({
             include: {
                 warehouse: {
@@ -22,6 +56,9 @@ export class UsersDao {
                         code: true,
                     }
                 }
+            },
+            orderBy: {
+                created_at: 'desc'
             }
         });
 

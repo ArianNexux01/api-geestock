@@ -8,6 +8,7 @@ import {
   Res,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -24,10 +25,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Response } from 'express';
 import { UserEntity } from './entities/user.entity';
-@Controller('users')
+@Controller('api/users')
 @ApiTags('Users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post('/')
   @ApiCreatedResponse({
@@ -61,8 +62,8 @@ export class UsersController {
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  async findAll() {
-    const users = await this.usersService.findAll();
+  async findAll(@Query('searchParam') searchParam: string) {
+    const users = await this.usersService.findAll(searchParam);
     return users;
   }
 

@@ -5,7 +5,7 @@ import { RequestDao } from './request.dao';
 
 import { PieceDao } from 'src/pieces/piece.dao';
 import { AcceptRequestDTO } from './dto/accept-request.dto';
-import { InvoiceReciepmentDao } from './invoice.dao';
+import { InvoiceReciepmentDao } from '../invoice/invoice.dao';
 import { LogsActivitiesDao } from 'src/logs-activities/logs-activities.dao';
 import { AlertsDao } from 'src/alerts/alerts.dao';
 import { EmailService } from 'src/email/email.service';
@@ -34,8 +34,8 @@ export class RequestService {
     })
   }
 
-  async findAll() {
-    const requests = await this.requestsDao.list();
+  async findAll(searchParam: string) {
+    const requests = await this.requestsDao.list(searchParam);
 
     return requests;
   }
@@ -56,12 +56,12 @@ export class RequestService {
     await this.requestsDao.delete(id);
   }
 
-  async findByWarehouseIncommingId(id: string) {
-    return await this.requestsDao.findByIncommingWarehouse(id)
+  async findByWarehouseIncommingId(id: string, searchParam: string) {
+    return await this.requestsDao.findByIncommingWarehouse(id, searchParam)
   }
 
-  async findByWarehouseOutcommingId(id: string) {
-    return await this.requestsDao.findByOutcommingWarehouse(id)
+  async findByWarehouseOutcommingId(id: string, searchParam: string) {
+    return await this.requestsDao.findByOutcommingWarehouse(id, searchParam)
   }
 
   async acceptRequest(id: string, requestData: AcceptRequestDTO): Promise<any> {
@@ -195,7 +195,7 @@ export class RequestService {
   }
 
   async getInvoices() {
-    return await this.invoiceRecipment.list()
+    return await this.invoiceRecipment.list('')
   }
 
 

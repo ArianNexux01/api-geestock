@@ -11,9 +11,29 @@ export class WarehouseDao {
         return this.prisma.warehouse.create({ data });
     }
 
-    async list(): Promise<Warehouse[]> {
-        const warehouse = await this.prisma.warehouse.findMany();
+    async list(searchParam: string): Promise<Warehouse[]> {
+        if (searchParam !== "" && searchParam !== undefined) {
+            const warehouse = await this.prisma.warehouse.findMany({
+                where: {
+                    OR: [{
+                        name: {
+                            contains: searchParam,
+                        }
+                    }]
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            });
+            console.log(warehouse)
+            return warehouse;
+        }
 
+        const warehouse = await this.prisma.warehouse.findMany({
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
         return warehouse;
     }
 

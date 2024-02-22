@@ -16,10 +16,11 @@ import { LogsActivitiesModule } from './logs-activities/logs-activities.module';
 import { AlertsModule } from './alerts/alerts.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { EmailService } from './email/email.service';
+import { InvoiceModule } from './invoice/invoice.module';
 
 @Module({
 
-  imports: [UsersModule, AuthModule, RequestModule, WarehouseModule, PieceModule, CategoryModule, SubcategoryModule, TransportModule, OrderModule, SupplierModule, LogsActivitiesModule, AlertsModule, DashboardModule],
+  imports: [UsersModule, AuthModule, RequestModule, WarehouseModule, PieceModule, CategoryModule, SubcategoryModule, TransportModule, OrderModule, SupplierModule, LogsActivitiesModule, AlertsModule, DashboardModule, InvoiceModule],
   controllers: [AppController],
   providers: [AppService],
 
