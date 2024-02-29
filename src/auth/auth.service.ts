@@ -14,6 +14,7 @@ export class AuthService {
             throw new UnauthorizedException();
         }
         const { password, ...result } = user;
+        const warehouse = user.warehouse.map(e => e.Warehouse)
         const payload = { sub: user.id, username: user.name };
         return {
             data: {
@@ -22,7 +23,7 @@ export class AuthService {
                 name: user.name,
                 company: user.company,
                 position: user.position,
-                warehouse: user.warehouse
+                warehouse: warehouse
             },
             access_token: await this.jwtService.signAsync(payload),
         };

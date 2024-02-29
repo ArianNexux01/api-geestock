@@ -15,11 +15,18 @@ export class WarehouseDao {
         if (searchParam !== "" && searchParam !== undefined) {
             const warehouse = await this.prisma.warehouse.findMany({
                 where: {
-                    OR: [{
-                        name: {
-                            contains: searchParam,
+                    OR: [
+                        {
+                            name: {
+                                contains: searchParam,
+                            }
+                        },
+                        {
+                            code: {
+                                contains: searchParam
+                            }
                         }
-                    }]
+                    ]
                 },
                 orderBy: {
                     created_at: 'desc'

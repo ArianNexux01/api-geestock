@@ -9,7 +9,6 @@ export class ConfirmOrderDTO {
     })
     pieceData: [{
         pieceId: string
-        priceOfEachPiece: number,
         quantity: number
     }]
 

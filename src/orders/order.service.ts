@@ -23,8 +23,8 @@ export class OrderService {
     })
   }
 
-  async findAll(searchParam: string) {
-    const order = await this.orderDao.list(searchParam);
+  async findAll(searchParam: string, warehouseId: string) {
+    const order = await this.orderDao.list(searchParam, warehouseId);
 
     return order;
   }
@@ -52,9 +52,8 @@ export class OrderService {
     for (const item of confirmOrder.pieceData) {
       const findPiece = await this.pieceDao.find(item.pieceId)
       if (findPiece) {
-        const pieceFound = await this.pieceDao.increaseQuantity(item.pieceId, Number(item.quantity))
-        await this.orderDao.changeStateAndPrice(orderId, Number(item.priceOfEachPiece), "Finalizada", item.pieceId)
-        await this.pieceDao.updatePrice(item.pieceId, (Number(pieceFound.price) + Number(item.priceOfEachPiece)) / 2)
+        await this.pieceDao.increaseQuantity(item.pieceId, Number(item.quantity))
+        await this.orderDao.changeStateAndPrice(orderId, "Finalizada", item.pieceId)
       }
     }
 

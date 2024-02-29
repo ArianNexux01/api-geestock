@@ -6,6 +6,7 @@ import {
   IsOptional,
   MaxLength,
   MinLength,
+  IsArray,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -30,12 +31,12 @@ export class CreateUserDto {
 
 
 
-  @IsString()
+  @IsArray()
   @IsNotEmpty()
   @ApiProperty({
-    example: 'b40e442d-61d3-43cd-8b9f-37578f7d3d7b',
+    example: ['b40e442d-61d3-43cd-8b9f-37578f7d3d7b'],
   })
-  warehouseId: string;
+  warehouseId: string[];
 
 
   @IsEmail()

@@ -1,16 +1,30 @@
 import { Prisma, Users } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersDao {
     constructor(private readonly prisma: PrismaService) { }
 
-    async create(data: Prisma.UsersCreateInput): Promise<any> {
+    async create(data: CreateUserDto): Promise<any> {
+        const warehouseIds = data.warehouseId.map(id => ({ warehouseId: id }))
+        console.log(warehouseIds);
+        return this.prisma.users.create({
+            data: {
 
-        return this.prisma.users.create({ data });
+                name: data.name,
+                email: data.email,
+                company: data.company,
+                position: data.position,
+                password: data.password,
+                warehouse: {
+                    create: warehouseIds
+                }
+            }
+        });
+
     }
-
     async list(searchParam: string): Promise<any[]> {
 
         if (searchParam !== "" && searchParam !== undefined) {
@@ -31,11 +45,15 @@ export class UsersDao {
                 },
                 include: {
                     warehouse: {
-                        select: {
-                            id: true,
-                            name: true,
-                            type: true,
-                            code: true,
+                        include: {
+                            Warehouse: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    type: true,
+                                    code: true,
+                                }
+                            }
                         }
                     }
                 },
@@ -49,11 +67,15 @@ export class UsersDao {
         const users = await this.prisma.users.findMany({
             include: {
                 warehouse: {
-                    select: {
-                        id: true,
-                        name: true,
-                        type: true,
-                        code: true,
+                    include: {
+                        Warehouse: {
+                            select: {
+                                id: true,
+                                name: true,
+                                type: true,
+                                code: true,
+                            }
+                        }
                     }
                 }
             },
@@ -70,11 +92,15 @@ export class UsersDao {
             where: { id },
             include: {
                 warehouse: {
-                    select: {
-                        id: true,
-                        name: true,
-                        type: true,
-                        code: true,
+                    include: {
+                        Warehouse: {
+                            select: {
+                                id: true,
+                                name: true,
+                                type: true,
+                                code: true,
+                            }
+                        }
                     }
                 }
             }
@@ -97,11 +123,15 @@ export class UsersDao {
             where: { email },
             include: {
                 warehouse: {
-                    select: {
-                        id: true,
-                        name: true,
-                        type: true,
-                        code: true,
+                    include: {
+                        Warehouse: {
+                            select: {
+                                id: true,
+                                name: true,
+                                type: true,
+                                code: true,
+                            }
+                        }
                     }
                 }
             }

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsEnum, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator"
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 
 export class CreatePieceDto {
 
@@ -111,8 +111,7 @@ export class CreatePieceDto {
     })
     brand_name: string
 
-    @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     @ApiProperty({
         example: 'Na fila 5, do corredor do elevador 12',
     })

@@ -22,15 +22,17 @@ export class InvoiceService {
       price: e.request.piece.price,
     }))
 
-    console.log(returnmentData)
+    console.log(response[0])
 
-    return {
+    const dataToBeReturned = {
       returnmentData,
-      warehouseIncomming: "W1",
-      warehouseOutcomming: "w2",
-      numberPr: response[0].request.numberPr,
+      warehouseIncomming: response[0].request.request.warehouseIncomming.name,
+      warehouseOutcomming: response[0].request.request.warehouseOutcomming.name,
+      numberPr: response[0].request.request.numberPr,
       createdAt: new Date()
     }
+    //console.log(dataToBeReturned);
+    return dataToBeReturned
   }
 
   findOne(id: number) {

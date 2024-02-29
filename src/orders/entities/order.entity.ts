@@ -14,6 +14,10 @@ export class Order {
     })
     imbl_awb: string
 
+    @ApiProperty({
+        example: '0100',
+    })
+    reference: string
 
     @ApiProperty({
         example: 10,

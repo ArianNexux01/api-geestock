@@ -12,20 +12,19 @@ datasource db {
 }
 
 model Users {
-  id          String       @id @default(uuid())
-  name        String
-  email       String       @unique
-  company     String
-  position    String
-  password    String
-  warehouseId String
-  roles       Roles[]
-  UsersRoles  UsersRoles[]
-  warehouse   Warehouse?   @relation(fields: [warehouseId], references: [id])
+  id         String       @id @default(uuid())
+  name       String
+  email      String       @unique
+  company    String
+  position   String
+  password   String
+  roles      Roles[]
+  UsersRoles UsersRoles[]
 
   created_at     DateTime         @default(now())
   updated_at     DateTime         @updatedAt
   LogsActivities LogsActivities[]
+  warehouse      UsersWarehouse[]
 
   @@map("users")
 }
@@ -76,11 +75,11 @@ model Warehouse {
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
   Pieces          Pieces[]
-  Users           Users[]
 
-  Requests      Requests[] @relation("warehouseIncommingRequest")
-  RequestsModel Requests[] @relation("warehouseOutcommingRequest")
+  Requests      Requests[]       @relation("warehouseIncommingRequest")
+  RequestsModel Requests[]       @relation("warehouseOutcommingRequest")
   Alerts        Alerts[]
+  Users         UsersWarehouse[]
 
   @@map("warehouse")
 }
@@ -264,6 +263,18 @@ model Alerts {
   piece     Pieces    @relation(fields: [pieceId], references: [id])
 
   description String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model UsersWarehouse {
+  id String @id @default(uuid())
+
+  Users       Users?     @relation(fields: [usersId], references: [id])
+  usersId     String?
+  Warehouse   Warehouse? @relation(fields: [warehouseId], references: [id])
+  warehouseId String?
 
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt

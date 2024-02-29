@@ -24,8 +24,8 @@ export class OrderController {
   }
 
   @Get()
-  findAll(@Query("searchParam") searchParam: string) {
-    return this.orderService.findAll(searchParam);
+  findAll(@Query("searchParam") searchParam: string, @Query("warehouseId") warehouseId: string) {
+    return this.orderService.findAll(searchParam, warehouseId);
   }
 
   @Get(':id')

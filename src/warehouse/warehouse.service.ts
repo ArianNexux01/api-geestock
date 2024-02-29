@@ -18,6 +18,7 @@ export class WarehouseService {
     })
 
     delete createWarehouseDto.userId
+
     await this.warehousesDao.create(createWarehouseDto);
   }
 
@@ -47,11 +48,13 @@ export class WarehouseService {
   }
 
   async update(id: string, updateWarehouseDto: UpdateWarehouseDto) {
-    await this.warehousesDao.update(id, updateWarehouseDto);
     await this.logsActivitiesDao.create({
       userId: updateWarehouseDto.userId,
       description: `Actualizou o armazem ${updateWarehouseDto.name} com o codigo ${updateWarehouseDto.code}`
     })
+    delete updateWarehouseDto.userId
+
+    await this.warehousesDao.update(id, updateWarehouseDto);
   }
 
   async remove(id: string) {

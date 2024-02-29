@@ -78,7 +78,6 @@ export class InvoiceReciepmentDao {
                 }
             });
 
-            console.log(request);
             return request;
         }
         const request = await this.prisma.invoiceReciepment.findMany({
@@ -114,7 +113,6 @@ export class InvoiceReciepmentDao {
             }
         });
 
-        console.log(request);
         return request;
     }
 

@@ -29,7 +29,7 @@ export class OrderDao {
         });
     }
 
-    async list(searchParam: string): Promise<any[]> {
+    async list(searchParam: string, warehouseId: string): Promise<any[]> {
         if (searchParam !== undefined && searchParam !== '') {
             const orders = await this.prisma.orders.findMany({
                 where: {
@@ -42,6 +42,17 @@ export class OrderDao {
                         {
                             description: {
                                 contains: searchParam,
+                            }
+                        },
+                        {
+                            OrdersPiece: {
+                                every: {
+                                    piece: {
+                                        warehouse: {
+                                            id: searchParam 
+                                        }
+                                    }
+                                }
                             }
                         }
                     ]
@@ -138,7 +149,7 @@ export class OrderDao {
         return this.prisma.orders.delete({ where: { id } });
     }
 
-    async changeStateAndPrice(orderId: string, price: number, state: string, pieceId?: string): Promise<any> {
+    async changeStateAndPrice(orderId: string, state: string, pieceId?: string): Promise<any> {
         const user = await this.prisma.ordersPiece.update({
             where: {
                 pieceId_orderId: {
@@ -147,7 +158,6 @@ export class OrderDao {
                 }
             },
             data: {
-                price: price,
                 Order: {
                     update: {
                         state
@@ -156,14 +166,7 @@ export class OrderDao {
             }
         });
 
-        this.prisma.pieces.update({
-            where: {
-                id: pieceId
-            },
-            data: {
-                price: price
-            }
-        })
+
         return user
 
     }

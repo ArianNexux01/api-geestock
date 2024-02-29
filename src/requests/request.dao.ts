@@ -16,7 +16,7 @@ export class RequestDao {
             data: {
                 state: data.state,
                 name: data.name,
-
+                numberPr: data.numberPr,
                 RequestsPieces: {
                     createMany: {
                         data: piecesData
@@ -264,6 +264,7 @@ export class RequestDao {
                             },
                         },
                     ]
+
                 }]
             },
             include: {

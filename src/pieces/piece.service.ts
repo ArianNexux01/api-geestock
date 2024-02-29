@@ -28,6 +28,7 @@ export class PieceService {
       description: e.description,
       quantity: e.quantity,
       price: e.price,
+      warehouse: e.warehouse,
       state: e.state,
       brand_name: e.brand_name,
       supplierId: e.supplierId,

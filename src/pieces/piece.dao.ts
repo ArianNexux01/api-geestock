@@ -15,7 +15,7 @@ export class PieceDao {
 
     }
 
-    async list(searchParam?: string): Promise<Pieces[]> {
+    async list(searchParam?: string): Promise<any> {
         let pieces: any;
         if (searchParam !== "" && searchParam !== undefined) {
             pieces = await this.prisma.pieces.findMany({
@@ -36,6 +36,24 @@ export class PieceDao {
                         },
                     ]
                 },
+                select: {
+                    brand_name: true,
+                    id: true,
+                    description: true,
+                    locationInWarehouse: true,
+                    partNumber: true,
+                    name: true,
+                    price: true,
+                    state: true,
+                    target: true,
+                    min: true,
+                    quantity: true,
+                    warehouse: {
+                        select: {
+                            name: true
+                        }
+                    }
+                }
 
             });
         } else {
@@ -43,6 +61,24 @@ export class PieceDao {
             pieces = await this.prisma.pieces.findMany({
                 orderBy: {
                     created_at: 'desc'
+                },
+                select: {
+                    brand_name: true,
+                    id: true,
+                    description: true,
+                    locationInWarehouse: true,
+                    partNumber: true,
+                    name: true,
+                    price: true,
+                    state: true,
+                    target: true,
+                    min: true,
+                    quantity: true,
+                    warehouse: {
+                        select: {
+                            name: true
+                        }
+                    }
                 }
             });
         }
@@ -58,7 +94,7 @@ export class PieceDao {
                 subcategory: true,
                 supplier: true,
                 warehouse: true
-            }
+            },
         });
     }
 

@@ -22,7 +22,7 @@ export class UsersService {
       position: e.position,
       company: e.company,
       email: e.email,
-      warehouse: e.warehouse,
+      warehouse: e.warehouse.Warehouse,
       created_at: e.created_at,
       updated_at: e.updated_at
     }))
@@ -30,7 +30,12 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return await this.usersDao.find(id);
+    const foundUser = await this.usersDao.find(id);
+
+    return {
+      ...foundUser,
+      warehouse: foundUser.warehouse.Warehouse,
+    }
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
