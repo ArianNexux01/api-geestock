@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsEnum, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator"
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 
 export class CreateOrderDto {
 
@@ -17,6 +17,7 @@ export class CreateOrderDto {
     })
     imbl_awb: string
 
+    @IsString()
     @ApiProperty({
         example: '0010LA011',
     })

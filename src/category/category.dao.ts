@@ -11,10 +11,30 @@ export class CategoryDao {
         return this.prisma.categories.create({ data });
     }
 
-    async list(searchParam: string): Promise<Categories[]> {
+    async list(searchParam: string, onlyActive: number): Promise<Categories[]> {
+
+        let where;
+
         if (searchParam !== undefined && searchParam !== '') {
-            const categories = await this.prisma.categories.findMany({
-                where: {
+            where = {
+                OR: [
+                    {
+                        code: {
+                            contains: searchParam,
+                        }
+                    },
+                    {
+                        name: {
+                            contains: searchParam,
+                        }
+                    }
+                ]
+
+            };
+        }
+        if (onlyActive == 1) {
+            where = {
+                AND: [{
                     OR: [
                         {
                             code: {
@@ -29,6 +49,14 @@ export class CategoryDao {
                     ]
 
                 },
+                {
+                    isActive: true
+                }]
+            };
+        }
+        if ((searchParam !== "" && searchParam !== undefined) || onlyActive !== undefined) {
+            const categories = await this.prisma.categories.findMany({
+                where,
                 orderBy: {
                     created_at: 'desc'
                 }
@@ -52,5 +80,14 @@ export class CategoryDao {
 
     async delete(id: string): Promise<Categories> {
         return this.prisma.categories.delete({ where: { id } });
+    }
+
+    async changeStatus(id: string, status: number): Promise<any> {
+        return await this.prisma.categories.update({
+            where: { id: id },
+            data: {
+                isActive: status == 1
+            }
+        })
     }
 }

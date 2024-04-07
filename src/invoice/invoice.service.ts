@@ -12,17 +12,20 @@ export class InvoiceService {
 
   async findAll(requestId: string) {
     const response = await this.invoiceDao.list(requestId);
+
     const returnmentData = response.map(e => ({
       pieceName: e.request.piece.name,
       description: e.request.piece.description,
       partNumber: e.partNumber,
       numberSeries: e.number_series,
       requestPieceId: e.requestPiecesId,
-      quantity: e.request.quantityGiven,
+      quantity: e.quantity,
+      quantityGiven: e.request.quantityGiven,
       price: e.request.piece.price,
     }))
 
-    console.log(response[0])
+    console.log(response)
+
 
     const dataToBeReturned = {
       returnmentData,
@@ -31,7 +34,7 @@ export class InvoiceService {
       numberPr: response[0].request.request.numberPr,
       createdAt: new Date()
     }
-    //console.log(dataToBeReturned);
+
     return dataToBeReturned
   }
 

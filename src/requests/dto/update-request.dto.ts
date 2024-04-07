@@ -1,7 +1,7 @@
 import { ApiParam, PartialType } from '@nestjs/swagger';
 import { CreateRequestDTO } from './create-request.dto';
 import { ApiProperty } from "@nestjs/swagger"
-import { IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator"
+import { IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 import { Exclude } from 'class-transformer';
 
 export class UpdateRequestDTO extends CreateRequestDTO {
@@ -17,6 +17,18 @@ export class UpdateRequestDTO extends CreateRequestDTO {
     })
     name: string
 
+    @IsNotEmpty()
+    @ApiProperty({
+        example: '001',
+    })
+    numberPr: string
+
+    @IsOptional()
+    @ApiProperty({
+        example: "10",
+        default: "Disponivel"
+    })
+    state: string
 
     @Exclude()
     created_at: Date

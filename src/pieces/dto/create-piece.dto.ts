@@ -6,8 +6,6 @@ export class CreatePieceDto {
 
     @IsString()
     @IsNotEmpty()
-    @MinLength(4)
-    @MaxLength(80)
     @ApiProperty({
         example: 'Frank',
     })
@@ -15,7 +13,7 @@ export class CreatePieceDto {
 
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     @ApiProperty({
         example: 'Armazem de vendas',
     })
@@ -29,14 +27,14 @@ export class CreatePieceDto {
     price: number
 
     @IsNumber()
-    @IsNotEmpty()
+    @IsOptional()
     @ApiProperty({
         example: 10,
     })
     quantity: number
 
     @IsNumber()
-    @IsNotEmpty()
+    @IsOptional()
     @ApiProperty({
         example: 10,
     })
@@ -50,7 +48,7 @@ export class CreatePieceDto {
     partNumber: string
 
     @IsNumber()
-    @IsNotEmpty()
+    @IsOptional()
     @ApiProperty({
         example: 10,
     })
@@ -79,7 +77,7 @@ export class CreatePieceDto {
 
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     @ApiProperty({
         example: 'Teste, LDA',
     })
@@ -90,6 +88,7 @@ export class CreatePieceDto {
         encomendada: "Removido",
         disponivel: "Disponivel"
     })
+
     @IsNotEmpty()
     @ApiProperty({
         example: 'Teste, LDA',
@@ -105,7 +104,7 @@ export class CreatePieceDto {
 
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     @ApiProperty({
         example: 'Teste, LDA',
     })
@@ -122,6 +121,7 @@ export class CreatePieceDto {
         example: 'Teste, LDA',
     })
     series_number: string
+
 
 }
 

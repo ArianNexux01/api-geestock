@@ -11,7 +11,7 @@ import { AlertsDao } from 'src/alerts/alerts.dao';
 import { EmailService } from 'src/email/email.service';
 
 enum RequestStatus {
-  ONGOING = "Em curso",
+  ONGOING = "finalizada parcialmente",
   FINISHED = "Finalizada"
 }
 
@@ -27,7 +27,25 @@ export class RequestService {
 
   ) { }
   async create(createPieceDto: CreateRequestDTO) {
+
+    const allQuantityAreGreaterThanQuantityRequested = createPieceDto.request.filter(e => e.quantity < e.quantityRequested)
+
+    if (allQuantityAreGreaterThanQuantityRequested.length > 0) {
+      throw new Error("Quantity must be greater than QuantityRequested");
+    }
+
+
+    createPieceDto.request = createPieceDto.request.map((dto) => {
+      const fakeQuantity = dto.quantity - dto.quantityRequested
+      this.pieceDao.updateQuantity(dto.pieceId, fakeQuantity)
+      return {
+        ...dto,
+        quantity: fakeQuantity
+      }
+    })
+
     await this.requestsDao.create(createPieceDto);
+
     await this.logsActivitiesDao.create({
       userId: createPieceDto.userId,
       description: `Realizou uma requisição com numero de PR ${createPieceDto.numberPr}`
@@ -77,11 +95,14 @@ export class RequestService {
     let piecesOfRequest !: any
     const returnmentData = []
     for (let piece of requestData.pieceData) {
-      let sumQuantityGiven: number = piece.quantityGiven
-      const pieceData = await this.pieceDao.find(piece.pieceId)
+      let sumQuantityGiven = Number(piece.quantityGiven)
+      let totalQuantityGiven = Number(piece.quantityGiven) - Number(piece.number_series.length)
+
+
+      let pieceData = await this.pieceDao.find(piece.pieceId)
       const requestPiece = await this.requestsDao.findByRequestAndPieceId(id, piece.pieceId)
-      //if( pieceData.quantity < piece.quantityGiven) throw new Error("Quantity must be Less than quantity given")
-      const leftQuantityOfPieces = pieceData.quantity - Number(piece.quantityGiven)
+      pieceData = await this.pieceDao.updateQuantity(pieceData.id, Number(Number(pieceData.quantity) + Number(requestPiece.quantity)))
+      const leftQuantityOfPieces = Number(pieceData.quantity) - Number(piece.quantityGiven)
       await this.pieceDao.updateQuantity(piece.pieceId, leftQuantityOfPieces)
 
       if (pieceData.target >= leftQuantityOfPieces) {
@@ -106,11 +127,12 @@ export class RequestService {
 
 
       if (piecesOfRequest !== null) {
+
         sumQuantityGiven = Number(piecesOfRequest.quantity) + Number(piece.quantityGiven)
-        console.log(piecesOfRequest.quantity, Number(piece.quantityGiven))
 
 
         await this.pieceDao.updateQuantity(piecesOfRequest.id, sumQuantityGiven)
+
       } else {
         piecesOfRequest = await this.pieceDao.create({
           name: pieceData.name,
@@ -146,15 +168,37 @@ export class RequestService {
         })
 
       }
+      let finalQuantity = Number(piece.quantityGiven) - piece.number_series.length
+
+      console.log("DEBUG", finalQuantity, piece.quantityGiven, piece.number_series)
+      await this.invoiceRecipment.create({
+        description: pieceData.description,
+        partNumber: pieceData.partNumber,
+        requestPieceId: requestPiece.id,
+        numberSeries: "N/A",
+        quantity: Number(finalQuantity),
+        quantityGiven: Number(piece.quantityGiven)
+      })
+
+      returnmentData.push({
+        pieceName: pieceData.name,
+        description: pieceData.description,
+        partNumber: pieceData.partNumber,
+        numberSeries: "N/A",
+        requestPieceId: piece.pieceId,
+        price: pieceData.price,
+        quantity: Number(finalQuantity)
+      })
 
 
       piece.number_series.forEach(async (nseries) => {
-        console.log(nseries)
         await this.invoiceRecipment.create({
           description: pieceData.description,
           partNumber: pieceData.partNumber,
           requestPieceId: requestPiece.id,
-          numberSeries: nseries
+          created_at: requestPiece.created_at,
+          numberSeries: nseries,
+          quantity: 1
         })
         returnmentData.push({
           pieceName: pieceData.name,
@@ -163,18 +207,14 @@ export class RequestService {
           numberSeries: nseries,
           requestPieceId: piece.pieceId,
           price: pieceData.price,
-          quantity: pieceData.quantity
+          quantity: 1
         })
-
       })
-
-
-
       //Validar o numero de peças pretendido e o numero de peças dado
 
-      await this.requestsDao.updateQuantityGivenInRequestPieces(requestPiece.id, sumQuantityGiven)
+      await this.requestsDao.updateQuantityGivenInRequestPieces(requestPiece.id, Number(piece.quantityGiven))
 
-      isRequestFinished = requestPiece.quantity == piece.quantityGiven
+      isRequestFinished = piece.quantityGiven >= requestPiece.quantity
     }
     await this.requestsDao.changeStateOfRequest(id, isRequestFinished ? RequestStatus.FINISHED : RequestStatus.ONGOING);
     const warehouseOutcomming = request.warehouseOutcomming.name
@@ -192,11 +232,29 @@ export class RequestService {
       numberPr: request.numberPr,
       createdAt: request.created_at,
     }
+
   }
 
   async getInvoices() {
     return await this.invoiceRecipment.list('')
   }
 
+  async findByState(state: string) {
+    return await this.requestsDao.findByState(state)
+  }
+
+  async revert(id: string) {
+    let request = await this.requestsDao.find(id)
+
+    request.RequestsPieces.forEach(async (requestPiece) => {
+      const piece = await this.pieceDao.find(requestPiece.pieceId)
+      this.pieceDao.updateQuantity(piece.id, requestPiece.quantity + piece.quantity)
+    })
+
+    this.requestsDao.changeStateOfRequest(id, "Rejeitada")
+    request = await this.findAll('')
+
+    return request
+  }
 
 }

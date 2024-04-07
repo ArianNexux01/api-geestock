@@ -9,6 +9,7 @@ import {
   Param,
   Delete,
   Query,
+  Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -18,6 +19,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -54,7 +56,28 @@ export class UsersController {
     }
   }
 
+
+  @ApiQuery({
+    name: "searchParam",
+    type: String,
+    required: false
+  })
+  @ApiQuery({
+    name: "onlyActive",
+    type: Number,
+    required: false
+  })
   @Get()
+  @ApiQuery({
+    name: "searchParam",
+    type: String,
+    required: false
+  })
+  @ApiQuery({
+    name: "onlyActive",
+    type: Number,
+    required: false
+  })
   @ApiBearerAuth()
   @ApiOkResponse({
     description: 'Successfully retrieved users',
@@ -62,8 +85,8 @@ export class UsersController {
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  async findAll(@Query('searchParam') searchParam: string) {
-    const users = await this.usersService.findAll(searchParam);
+  async findAll(@Query('searchParam') searchParam: string, @Query('onlyActive') onlyActive: number) {
+    const users = await this.usersService.findAll(searchParam, onlyActive);
     return users;
   }
 
@@ -90,5 +113,16 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
+  }
+
+
+  @Get('change-status/:id')
+  changeStatus(@Param('id') id: string, @Query('status') status: number) {
+    return this.usersService.changeStatus(id, status);
+  }
+
+  @Put('reset-password/:id')
+  resetPassword(@Param('id') id: string) {
+    return this.usersService.resetPassword(id);
   }
 }

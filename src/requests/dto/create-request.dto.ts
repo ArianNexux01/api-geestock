@@ -32,18 +32,21 @@ export class CreateRequestDTO {
     @ApiProperty({
         example: [{
             pieceId: "0001",
-            quantity: 10
+            quantity: 10,
+            quantityRequested: 5
         },
         {
             pieceId: "0002",
-            quantity: 5
+            quantity: 5,
+            quantityRequested: 2
         }
         ],
     })
     request: {
         pieceId: string
         quantity: number
-    }
+        quantityRequested: number
+    }[]
 
     @IsString()
     @ApiProperty({

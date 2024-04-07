@@ -10,13 +10,25 @@ import {
   MinLength,
 } from 'class-validator';
 import { Exclude } from 'class-transformer';
-export class UpdateUserDto extends CreateUserDto {
+import { Optional } from '@nestjs/common';
+export class UpdateUserDto extends PartialType(CreateUserDto) {
 
 
   @ApiProperty({
     example: '001',
   })
   userId: string
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
+  isActive: boolean
+
+  @IsString()
+  @Optional()
+  @ApiProperty()
+  password: string;
+
 
   @Exclude()
   created_at: Date

@@ -18,12 +18,13 @@ export class CategoryService {
     await this.categoriesDao.create(createCategoryDto);
   }
 
-  async findAll(searchParam: string) {
-    const categories = await this.categoriesDao.list(searchParam);
+  async findAll(searchParam: string, onlyActive: number) {
+    const categories = await this.categoriesDao.list(searchParam, onlyActive);
     const categoriesToReturn = categories.map(e => ({
       id: e.id,
       name: e.name,
       code: e.code,
+      isActive: e.isActive,
       created_at: e.created_at,
       updated_at: e.updated_at
     }))
@@ -39,10 +40,15 @@ export class CategoryService {
       userId: updateCategoryDto.userId,
       description: `Actualizou a categoria ${updateCategoryDto.name} com o codigo ${updateCategoryDto.code}`
     })
+    delete updateCategoryDto.userId
     await this.categoriesDao.update(id, updateCategoryDto);
   }
 
   async remove(id: string) {
     await this.categoriesDao.delete(id);
+  }
+
+  async changeStatus(id: string, status: number) {
+    await this.categoriesDao.changeStatus(id, status);
   }
 }

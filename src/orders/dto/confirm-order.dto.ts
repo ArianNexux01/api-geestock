@@ -9,7 +9,8 @@ export class ConfirmOrderDTO {
     })
     pieceData: [{
         pieceId: string
-        quantity: number
+        quantity: number,
+        locationInWarehouse: string
     }]
 
     @IsString()

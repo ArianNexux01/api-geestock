@@ -17,14 +17,23 @@ export class DashboardService {
     }
     async findAll() {
         const result = {
-            request: await this.requestDao.count(),
+            request: await this.requestDao.count(undefined),
             warehouse: await this.warehouseDao.count(),
-            order: await this.orderDao.count(),
-            piece: await this.pieceDao.count(),
+            order: await this.orderDao.count(undefined),
+            piece: await this.pieceDao.count(undefined),
         }
 
         return result
     }
 
+    async findAllByUser(warehouseId: string) {
+        const result = {
+            request: await this.requestDao.count(warehouseId),
+            warehouse: 0,
+            order: await this.orderDao.count(warehouseId),
+            piece: await this.pieceDao.count(warehouseId),
+        }
 
+        return result
+    }
 }

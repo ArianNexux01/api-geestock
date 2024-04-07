@@ -12,6 +12,7 @@ export class InvoiceReciepmentDao {
                 description: data.description,
                 number_series: data.numberSeries,
                 partNumber: data.partNumber,
+                quantity: data.quantity,
                 request: {
                     connect: {
                         id: data.requestPieceId
@@ -26,7 +27,6 @@ export class InvoiceReciepmentDao {
 
     async list(requestId: string): Promise<any[]> {
         if (requestId !== '') {
-
             const request = await this.prisma.invoiceReciepment.findMany({
                 where: {
                     request: {
@@ -38,12 +38,12 @@ export class InvoiceReciepmentDao {
                     partNumber: true,
                     number_series: true,
                     requestPiecesId: true,
-
+                    quantity: true,
                     request: {
                         select: {
                             id: true,
                             quantityGiven: true,
-
+                            quantity: true,
                             piece: {
                                 select: {
                                     name: true,
@@ -106,7 +106,6 @@ export class InvoiceReciepmentDao {
                                 name: true,
                             }
                         },
-
 
                     }
                 }

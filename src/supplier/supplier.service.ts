@@ -6,7 +6,7 @@ import { SupplierDao } from './supplier.dao';
 import { LogsActivitiesDao } from 'src/logs-activities/logs-activities.dao';
 @Injectable()
 export class SupplierService {
-  constructor(private subcategoriesDao: SupplierDao, private logsActivitiesDao: LogsActivitiesDao) { }
+  constructor(private supplierDao: SupplierDao, private logsActivitiesDao: LogsActivitiesDao) { }
   async create(createSupplierDto: CreateSupplierDto) {
     await this.logsActivitiesDao.create({
       userId: createSupplierDto.userId,
@@ -15,14 +15,15 @@ export class SupplierService {
 
     delete createSupplierDto.userId
 
-    await this.subcategoriesDao.create(createSupplierDto);
+    await this.supplierDao.create(createSupplierDto);
   }
 
-  async findAll(searchParam: string) {
-    const subcategories = await this.subcategoriesDao.list(searchParam);
+  async findAll(searchParam: string, onlyActive: number) {
+    const subcategories = await this.supplierDao.list(searchParam, onlyActive);
     const subcategoriesToReturn = subcategories.map(e => ({
       id: e.id,
       name: e.name,
+      isActive: e.isActive,
       code: e.code,
       created_at: e.created_at,
       updated_at: e.updated_at
@@ -31,18 +32,24 @@ export class SupplierService {
   }
 
   async findOne(id: string) {
-    return await this.subcategoriesDao.find(id);
+    return await this.supplierDao.find(id);
   }
 
   async update(id: string, updateSupplierDto: UpdateSupplierDto) {
-    await this.subcategoriesDao.update(id, updateSupplierDto);
+
     await this.logsActivitiesDao.create({
       userId: updateSupplierDto.userId,
       description: `Actualizou o fornecedor ${updateSupplierDto.name} com o codigo ${updateSupplierDto.code}`
     })
+    delete updateSupplierDto.userId
+    await this.supplierDao.update(id, updateSupplierDto);
   }
 
   async remove(id: string) {
-    await this.subcategoriesDao.delete(id);
+    await this.supplierDao.delete(id);
+  }
+
+  async changeStatus(id: string, status: number) {
+    await this.supplierDao.changeStatus(id, status);
   }
 }

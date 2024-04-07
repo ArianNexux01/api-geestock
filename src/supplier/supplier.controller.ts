@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { SupplierService } from './supplier.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Supplier } from './entities/supplier.entity';
 
 @ApiTags('Supplier')
@@ -22,9 +22,19 @@ export class SupplierController {
     return this.supplierService.create(createSupplierDto);
   }
 
+  @ApiQuery({
+    name: "searchParam",
+    type: String,
+    required: false
+  })
+  @ApiQuery({
+    name: "onlyActive",
+    type: Number,
+    required: false
+  })
   @Get()
-  findAll(@Query('searchParam') searchParam: string) {
-    return this.supplierService.findAll(searchParam);
+  findAll(@Query('searchParam') searchParam: string, @Query('onlyActive') onlyActive: number) {
+    return this.supplierService.findAll(searchParam, onlyActive);
   }
 
   @Get(':id')
@@ -42,5 +52,10 @@ export class SupplierController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.supplierService.remove(id);
+  }
+
+  @Get('change-status/:id')
+  changeStatus(@Param('id') id: string, @Query('status') status: number) {
+    return this.supplierService.changeStatus(id, status);
   }
 }

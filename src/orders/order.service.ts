@@ -52,7 +52,7 @@ export class OrderService {
     for (const item of confirmOrder.pieceData) {
       const findPiece = await this.pieceDao.find(item.pieceId)
       if (findPiece) {
-        await this.pieceDao.increaseQuantity(item.pieceId, Number(item.quantity))
+        await this.pieceDao.increaseQuantity(item.pieceId, Number(item.quantity), item.locationInWarehouse)
         await this.orderDao.changeStateAndPrice(orderId, "Finalizada", item.pieceId)
       }
     }

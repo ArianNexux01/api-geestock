@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { PieceService } from './piece.service';
 import { CreatePieceDto } from './dto/create-piece.dto';
 import { UpdatePieceDto } from './dto/update-piece.dto';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Piece } from './entities/piece.entity';
 
 @ApiTags('Piece')
@@ -22,9 +22,19 @@ export class PieceController {
     return this.pieceService.create(createPieceDto);
   }
 
+  @ApiQuery({
+    name: "searchParam",
+    type: String,
+    required: false
+  })
+  @ApiQuery({
+    name: "onlyActive",
+    type: Number,
+    required: false
+  })
   @Get()
-  findAll(@Query('searchParam') searchParam?: string) {
-    return this.pieceService.findAll(searchParam);
+  findAll(@Query('searchParam') searchParam?: string, @Query('onlyActive') onlyActive?: number) {
+    return this.pieceService.findAll(searchParam, onlyActive);
   }
 
   @Get(':id')
@@ -48,5 +58,10 @@ export class PieceController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.pieceService.remove(id);
+  }
+
+  @Get('change-status/:id')
+  changeStatus(@Param('id') id: string, @Query('status') status: number) {
+    return this.pieceService.changeStatus(id, status);
   }
 }

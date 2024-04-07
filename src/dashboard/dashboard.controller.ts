@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -10,5 +10,10 @@ export class DashboardController {
   @Get()
   findAll() {
     return this.dashboardService.findAll();
+  }
+
+  @Get("/all-by-user/:warehouseId")
+  findAllAllByUser(@Param("warehouseId") warehouseId: string) {
+    return this.dashboardService.findAllByUser(warehouseId);
   }
 }

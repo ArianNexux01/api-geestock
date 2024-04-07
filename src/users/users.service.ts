@@ -14,8 +14,8 @@ export class UsersService {
 
   }
 
-  async findAll(searchParam: string) {
-    const users = await this.usersDao.list(searchParam);
+  async findAll(searchParam: string, onlyActive: number) {
+    const users = await this.usersDao.list(searchParam, onlyActive);
     const usersToReturn = users.map(e => ({
       id: e.id,
       name: e.name,
@@ -23,6 +23,7 @@ export class UsersService {
       company: e.company,
       email: e.email,
       warehouse: e.warehouse.Warehouse,
+      isActive: e.isActive,
       created_at: e.created_at,
       updated_at: e.updated_at
     }))
@@ -34,17 +35,27 @@ export class UsersService {
 
     return {
       ...foundUser,
-      warehouse: foundUser.warehouse.Warehouse,
+      warehouse: foundUser.warehouse,
     }
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    updateUserDto.password = await hash(updateUserDto.password, 4);
+    if (updateUserDto.password !== undefined) {
+      updateUserDto.password = await hash(updateUserDto.password, 4);
+    }
     await this.usersDao.update(id, updateUserDto);
 
   }
 
   async remove(id: string) {
     await this.usersDao.delete(id);
+  }
+
+  async changeStatus(id: string, status: number) {
+    await this.usersDao.changeStatus(id, status);
+  }
+
+  async resetPassword(id: string) {
+    await this.usersDao.resetPassword(id);
   }
 }

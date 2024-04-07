@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Category } from './entities/category.entity';
 
 @ApiTags('Category')
@@ -22,9 +22,19 @@ export class CategoryController {
     return this.categoryService.create(createCategoryDto);
   }
 
+  @ApiQuery({
+    name: "searchParam",
+    type: String,
+    required: false
+  })
+  @ApiQuery({
+    name: "onlyActive",
+    type: Number,
+    required: false
+  })
   @Get()
-  findAll(@Query('searchParam') searchParam: string) {
-    return this.categoryService.findAll(searchParam);
+  findAll(@Query('searchParam') searchParam: string, @Query('onlyActive') onlyActive: number) {
+    return this.categoryService.findAll(searchParam, onlyActive);
   }
 
   @Get(':id')
@@ -42,5 +52,10 @@ export class CategoryController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.categoryService.remove(id);
+  }
+
+  @Get('change-status/:id')
+  changeStatus(@Param('id') id: string, @Query('status') status: number) {
+    return this.categoryService.changeStatus(id, status);
   }
 }

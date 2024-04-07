@@ -7,14 +7,36 @@ export class WarehouseDao {
     constructor(private readonly prisma: PrismaService) { }
 
     async create(data: Prisma.WarehouseCreateInput): Promise<any> {
-
         return this.prisma.warehouse.create({ data });
     }
 
-    async list(searchParam: string): Promise<Warehouse[]> {
+    async list(searchParam: string, onlyActive: number): Promise<Warehouse[]> {
+        let where = {}
         if (searchParam !== "" && searchParam !== undefined) {
-            const warehouse = await this.prisma.warehouse.findMany({
-                where: {
+            where = {
+                AND: [{
+
+                    OR: [
+                        {
+                            name: {
+                                contains: searchParam,
+                            }
+                        },
+                        {
+                            code: {
+                                contains: searchParam
+                            }
+                        }
+                    ]
+                }
+                ]
+            };
+        }
+
+        if (onlyActive == 1) {
+            where = {
+                AND: [{
+
                     OR: [
                         {
                             name: {
@@ -28,14 +50,22 @@ export class WarehouseDao {
                         }
                     ]
                 },
+                {
+                    isActive: onlyActive == 1
+                }
+                ]
+            };
+        }
+
+        if ((searchParam !== "" && searchParam !== undefined) || onlyActive !== undefined) {
+            const warehouse = await this.prisma.warehouse.findMany({
+                where,
                 orderBy: {
                     created_at: 'desc'
                 }
             });
-            console.log(warehouse)
             return warehouse;
         }
-
         const warehouse = await this.prisma.warehouse.findMany({
             orderBy: {
                 created_at: 'desc'
@@ -59,5 +89,15 @@ export class WarehouseDao {
 
     async count(): Promise<any> {
         return this.prisma.warehouse.count();
+    }
+
+    async changeStatus(id: string, status: number): Promise<any> {
+        return await this.prisma.warehouse.update({
+            where: { id: id },
+            data: {
+                isActive: status == 1
+
+            }
+        })
     }
 }

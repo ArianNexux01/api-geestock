@@ -29,10 +29,13 @@ export class UserEntity implements Users {
   role: number[];
 
   @ApiProperty()
+  isActive: boolean
+
+  @ApiProperty()
   company: string;
 
   @ApiProperty()
-  warehouseId: string;
+  warehouse: string[];
 
   @Exclude()
   password: string;

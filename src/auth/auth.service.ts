@@ -9,13 +9,24 @@ export class AuthService {
 
     async signIn(email: string, pass: string): Promise<any> {
         const user = await this.usersService.findByEmail(email);
+        console.log(user)
+        if (user.position !== "1") {
+
+            let atLeastOneWarehouseActive = user.warehouse.filter((e: any) => e.Warehouse?.isActive)
+            if (atLeastOneWarehouseActive.length === 0 || user.warehouse.length === 0) {
+                throw new UnauthorizedException();
+            }
+        }
         const isPasswordValid = await compare(pass, user.password)
+        console.log(isPasswordValid)
+
         if (!isPasswordValid) {
             throw new UnauthorizedException();
         }
         const { password, ...result } = user;
-        const warehouse = user.warehouse.map(e => e.Warehouse)
+        const warehouse = user.warehouse.map(e => e.Warehouse).filter(warehouse => warehouse !== null);
         const payload = { sub: user.id, username: user.name };
+
         return {
             data: {
                 id: user.id,

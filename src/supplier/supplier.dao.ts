@@ -11,10 +11,30 @@ export class SupplierDao {
         return this.prisma.suppliers.create({ data });
     }
 
-    async list(searchParam: string): Promise<Suppliers[]> {
+    async list(searchParam: string, onlyActive: number): Promise<Suppliers[]> {
+
+        let where = {}
         if (searchParam !== "" && searchParam !== undefined) {
-            const supplier = await this.prisma.suppliers.findMany({
-                where: {
+            where = {
+                OR: [
+                    {
+                        code: {
+                            contains: searchParam,
+                        },
+                    },
+                    {
+                        name: {
+                            contains: searchParam,
+                        },
+                    },
+                ]
+            }
+        }
+
+        if (onlyActive == 1) {
+            where = {
+                AND: [{
+
                     OR: [
                         {
                             code: {
@@ -28,12 +48,20 @@ export class SupplierDao {
                         },
                     ]
                 },
+                {
+                    isActive: onlyActive == 1,
+                }
+                ]
+            }
+        }
+        if ((searchParam !== "" && searchParam !== undefined) || onlyActive !== undefined) {
+            const supplier = await this.prisma.suppliers.findMany({
+                where,
                 orderBy: {
                     created_at: 'desc'
                 }
             });
             return supplier;
-
         }
         const supplier = await this.prisma.suppliers.findMany({
             orderBy: {
@@ -55,5 +83,15 @@ export class SupplierDao {
 
     async delete(id: string): Promise<Suppliers> {
         return this.prisma.suppliers.delete({ where: { id } });
+    }
+
+    async changeStatus(id: string, status: number): Promise<any> {
+        return await this.prisma.suppliers.update({
+            where: { id: id },
+            data: {
+                isActive: status == 1
+
+            }
+        })
     }
 }

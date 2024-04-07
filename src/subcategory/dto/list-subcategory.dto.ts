@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator"
+import { IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 
 export class ListSubcategoryDto {
 
@@ -31,7 +31,8 @@ export class ListSubcategoryDto {
     created_at: Date
     updated_at: Date
 
-
+    @IsOptional()
+    isActive?: boolean
 }
 
 

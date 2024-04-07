@@ -8,9 +8,9 @@ export class RequestDao {
 
     async create(data: any): Promise<any> {
         console.log(data);
-        const piecesData = data.request.map(e => ({
+        const requestPiecesData = data.request.map(e => ({
             pieceId: e.pieceId,
-            quantity: e.quantity
+            quantity: e.quantityRequested
         }))
         return this.prisma.requests.create({
             data: {
@@ -19,7 +19,7 @@ export class RequestDao {
                 numberPr: data.numberPr,
                 RequestsPieces: {
                     createMany: {
-                        data: piecesData
+                        data: requestPiecesData
                     }
 
                 },
@@ -54,6 +54,7 @@ export class RequestDao {
                                 contains: searchParam,
                             },
                         },
+
                     ]
                 },
                 include: {
@@ -134,6 +135,12 @@ export class RequestDao {
                         id: true,
                         pieceId: true,
                         quantity: true,
+                        quantityGiven: true,
+                        request: {
+                            select: {
+                                numberPr: true
+                            }
+                        },
                         piece: {
                             select: {
                                 name: true,
@@ -157,12 +164,16 @@ export class RequestDao {
             pieceId: e.pieceId,
             quantity: e.quantity
         }))
+
+        const insertedData = {
+            name: data.name,
+            numberPr: data.numberPr,
+
+        }
         return this.prisma.requests.update({
             where: { id },
             data: {
-                state: data.state,
-                name: data.name,
-
+                ...insertedData,
                 RequestsPieces: {
                     createMany: {
                         data: piecesData
@@ -333,7 +344,69 @@ export class RequestDao {
         })
     }
 
-    async count(): Promise<any> {
-        return this.prisma.requests.count();
+    async count(warehouseId: string): Promise<any> {
+        if (warehouseId !== undefined) {
+            const data = await this.prisma.requests.count({
+                where: {
+                    AND: [{
+
+                        OR: [{
+                            warehouseIdIncomming: warehouseId,
+                        }]
+                    }]
+                }
+            });
+            console.log(data)
+            return data
+
+        }
+        return this.prisma.requests.count({
+            where: {
+                state: 'Finalizada'
+            }
+        });
+    }
+
+
+
+    async findByState(state: string): Promise<any> {
+        const request = await this.prisma.requests.findMany({
+            where:
+            {
+                state: state,
+                isActive: true
+            },
+            include: {
+                warehouseIncomming: {
+                    select: {
+                        name: true
+                    }
+                },
+                warehouseOutcomming: {
+                    select: {
+                        name: true
+                    }
+                },
+                RequestsPieces: {
+                    select: {
+                        pieceId: true,
+                        quantity: true,
+
+                        piece: {
+                            select: {
+                                name: true,
+                                price: true
+                            }
+                        }
+                    }
+                }
+
+            },
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
+        console.log(request)
+        return request;
     }
 }

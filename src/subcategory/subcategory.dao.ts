@@ -23,23 +23,52 @@ export class SubcategoryDao {
 
     }
 
-    async list(searchParam: string): Promise<ListSubcategoryDto[]> {
+    async list(searchParam: string, onlyActive: number): Promise<ListSubcategoryDto[]> {
+        let where = {}
         if (searchParam !== "" && searchParam !== undefined) {
+            where = {
+                OR: [
+                    {
+                        code: {
+                            contains: searchParam,
+                        },
+                    },
+                    {
+                        name: {
+                            contains: searchParam,
+                        },
+                    },
+                ]
+            };
+        }
+
+        if (onlyActive == 1) {
+            where = {
+                AND: [
+                    {
+                        OR: [
+                            {
+                                code: {
+                                    contains: searchParam,
+                                },
+                            },
+                            {
+                                name: {
+                                    contains: searchParam,
+                                },
+                            },
+                        ]
+                    },
+                    {
+                        isActive: true,
+                    }
+                ]
+            };
+        }
+
+        if ((searchParam !== "" && searchParam !== undefined) || onlyActive !== undefined) {
             const subcategory = await this.prisma.subCategories.findMany({
-                where: {
-                    OR: [
-                        {
-                            code: {
-                                contains: searchParam,
-                            },
-                        },
-                        {
-                            name: {
-                                contains: searchParam,
-                            },
-                        },
-                    ]
-                },
+                where,
                 include: {
                     category: true
                 },
@@ -83,12 +112,32 @@ export class SubcategoryDao {
     }
 
 
-    async update(id: string, data: SubCategories): Promise<SubCategories> {
-        const user = this.prisma.subCategories.update({ where: { id }, data });
-        return user
+    async update(id: string, data: any): Promise<SubCategories> {
+        console.log(data)
+        const subcategory = await this.prisma.subCategories.update({
+            where: { id },
+            data: {
+                name: data.name,
+                code: data.code,
+                category: {
+                    connect: { id: data.categoryId }
+                }
+            },
+        });
+        return subcategory
     }
 
     async delete(id: string): Promise<SubCategories> {
         return this.prisma.subCategories.delete({ where: { id } });
+    }
+
+    async changeStatus(id: string, status: number): Promise<any> {
+        return await this.prisma.subCategories.update({
+            where: { id: id },
+            data: {
+                isActive: status == 1
+
+            }
+        })
     }
 }

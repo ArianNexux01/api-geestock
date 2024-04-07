@@ -12,24 +12,25 @@ export class WarehouseService {
   ) { }
   async create(createWarehouseDto: CreateWarehouseDto) {
 
+    createWarehouseDto.capacity = Number(createWarehouseDto.capacity)
     await this.logsActivitiesDao.create({
       userId: createWarehouseDto.userId,
       description: `Criou o armazem ${createWarehouseDto.name} com o codigo ${createWarehouseDto.code}`
     })
 
     delete createWarehouseDto.userId
-
     await this.warehousesDao.create(createWarehouseDto);
   }
 
-  async findAll(searchParam: string) {
-    const warehouses = await this.warehousesDao.list(searchParam);
+  async findAll(searchParam: string, onlyActive: number) {
+    const warehouses = await this.warehousesDao.list(searchParam, onlyActive);
     const warehousesToReturn = warehouses.map(e => ({
       id: e.id,
       name: e.name,
       description: e.description,
       country: e.country,
       province: e.province,
+      isActive: e.isActive,
       address: e.address,
       code: e.code,
       type: e.type,
@@ -59,5 +60,9 @@ export class WarehouseService {
 
   async remove(id: string) {
     await this.warehousesDao.delete(id);
+  }
+
+  async changeStatus(id: string, status: number) {
+    await this.warehousesDao.changeStatus(id, status);
   }
 }

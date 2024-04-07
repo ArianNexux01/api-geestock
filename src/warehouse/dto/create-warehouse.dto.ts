@@ -1,12 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsEnum, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator"
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 
 export class CreateWarehouseDto {
 
 
     @IsString()
     @IsNotEmpty()
-
     @ApiProperty({
         example: 'Frank',
     })
@@ -25,17 +24,19 @@ export class CreateWarehouseDto {
     })
     userId: string
 
-
+    @IsOptional()
     @ApiProperty({
         example: 'Angola',
     })
     country: string
 
+    @IsOptional()
     @ApiProperty({
         example: 'Luanda',
     })
     province: string
 
+    @IsOptional()
     @ApiProperty({
         example: 'Luanda, Angola, Rua da Mutamba',
     })
@@ -47,32 +48,35 @@ export class CreateWarehouseDto {
     })
     code: string
 
-
+    @IsOptional()
     @ApiProperty({
         example: 'Neither',
     })
     embarcationType: string
 
+    @IsOptional()
     @ApiProperty({
         example: 'Angola',
     })
     flag: string
 
+    @IsOptional()
     @ApiProperty({
         example: 'Teste, LDA',
     })
     company: string
 
+    @IsOptional()
     @ApiProperty({
         example: 12,
     })
     capacity: number
 
-
     @IsEnum({
         armazem: "Armazém",
         embarcacao: "Embarcação"
     })
+    @IsOptional()
     @ApiProperty({
         example: "fixo",
     })

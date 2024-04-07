@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
 import { RequestService } from './request.service';
 import { CreateRequestDTO } from './dto/create-request.dto';
 import { UpdateRequestDTO } from './dto/update-request.dto';
@@ -61,10 +61,20 @@ export class RequestController {
     return await this.requestService.findByWarehouseOutcommingId(id, searchParam);
   }
 
+  @Get('/by-state/:state')
+  async getByState(@Param('state') state: string) {
+    return await this.requestService.findByState(state);
+  }
+
 
   @Post('/accept-request/:id')
   @ApiBody({ type: AcceptRequestDTO })
   async acceptRequest(@Param('id') id: string, @Body() request: AcceptRequestDTO) {
     return await this.requestService.acceptRequest(id, request);
+  }
+
+  @Put('/revert-request/:id')
+  async revert(@Param('id') id: string) {
+    return await this.requestService.revert(id);
   }
 }

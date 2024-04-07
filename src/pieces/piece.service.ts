@@ -20,8 +20,8 @@ export class PieceService {
     await this.piecesDao.create(createPieceDto);
   }
 
-  async findAll(searchParam: string) {
-    const pieces = await this.piecesDao.list(searchParam);
+  async findAll(searchParam: string, onlyActive: number) {
+    const pieces = await this.piecesDao.list(searchParam, onlyActive);
     const piecesToReturn = pieces.map(e => ({
       id: e.id,
       name: e.name,
@@ -33,6 +33,7 @@ export class PieceService {
       brand_name: e.brand_name,
       supplierId: e.supplierId,
       partNumber: e.partNumber,
+      isActive: e.isActive,
       warehouseId: e.warehouseId,
       categoryId: e.categoryId,
       subCategoryId: e.subCategoryId,
@@ -63,5 +64,9 @@ export class PieceService {
   }
   async findByWarehouse(id: string, searchParam: string) {
     return await this.piecesDao.findByWarehouseId(id, searchParam)
+  }
+
+  async changeStatus(id: string, status: number) {
+    await this.piecesDao.changeStatus(id, status);
   }
 }

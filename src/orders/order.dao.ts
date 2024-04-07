@@ -12,7 +12,7 @@ export class OrderDao {
             quantity: e.quantity,
             price: e.price
         }))
-
+        console.log("teste", data)
         return this.prisma.orders.create({
             data: {
                 description: data.description,
@@ -49,7 +49,7 @@ export class OrderDao {
                                 every: {
                                     piece: {
                                         warehouse: {
-                                            id: searchParam 
+                                            id: searchParam
                                         }
                                     }
                                 }
@@ -116,7 +116,11 @@ export class OrderDao {
                             select: {
                                 name: true,
                                 partNumber: true,
-
+                                warehouse: {
+                                    select: {
+                                        name: true,
+                                    }
+                                }
                             }
                         }
                     }
@@ -171,7 +175,23 @@ export class OrderDao {
 
     }
 
-    async count(): Promise<any> {
+    async count(warehouseId: string): Promise<any> {
+
+        if (warehouseId !== undefined) {
+            const order = this.prisma.orders.count({
+                where: {
+                    OrdersPiece: {
+                        some: {
+                            piece: {
+                                warehouseId
+                            }
+                        }
+                    }
+                }
+            });
+            console.log(order)
+            return order
+        }
         return this.prisma.orders.count();
     }
 }
