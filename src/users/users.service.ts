@@ -8,7 +8,7 @@ import { v4 as uuid } from 'uuid';
 export class UsersService {
   constructor(private usersDao: UsersDao) { }
   async create(createUserDto: CreateUserDto) {
-    createUserDto.password = await hash(createUserDto.password, 4);
+    createUserDto.password = await hash("12345", 4);
     createUserDto.id = uuid();
     await this.usersDao.create(createUserDto);
 

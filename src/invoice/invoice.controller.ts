@@ -19,6 +19,11 @@ export class InvoiceController {
     return this.invoiceService.findAll(requestId);
   }
 
+  @Get('/recipement')
+  findAllReceipment() {
+    return this.invoiceService.findAllInvoiceReceipment();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.invoiceService.findOne(+id);

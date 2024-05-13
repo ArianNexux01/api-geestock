@@ -72,14 +72,14 @@ model Warehouse {
   capacity        Int?
   type            String
   company         String?
-  created_at      DateTime         @default(now())
-  updated_at      DateTime         @updatedAt
-  Pieces          Pieces[]
-  isActive        Boolean          @default(true)
-  Requests        Requests[]       @relation("warehouseIncommingRequest")
-  RequestsModel   Requests[]       @relation("warehouseOutcommingRequest")
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+  isActive        Boolean           @default(true)
+  Requests        Requests[]        @relation("warehouseIncommingRequest")
+  RequestsModel   Requests[]        @relation("warehouseOutcommingRequest")
   Alerts          Alerts[]
   Users           UsersWarehouse[]
+  PiecesWarehouse PiecesWarehouse[]
 
   @@map("warehouse")
 }
@@ -87,33 +87,47 @@ model Warehouse {
 model Pieces {
   id String @id @default(uuid())
 
-  name                String
-  description         String? @db.Text
-  price               Float
-  quantity            Int?    @default(0)
-  state               String
-  brand_name          String?
-  locationInWarehouse String? @default("No Description")
-  target              Int?    @default(0)
-  min                 Int?    @default(0)
-  warehouseId         String
-  categoryId          String
-  subCategoryId       String
-  partNumber          String?
-  supplierId          String?
+  name          String
+  partNumber    String
+  description   String? @db.Text
+  price         Float   @db.Float
+  state         String
+  brand_name    String?
+  target        Int?    @default(0)
+  min           Int?    @default(0)
+  categoryId    String
+  subCategoryId String
+  supplierId    String?
 
-  warehouse      Warehouse?       @relation(fields: [warehouseId], references: [id])
-  category       Categories?      @relation(fields: [categoryId], references: [id])
-  subcategory    SubCategories?   @relation(fields: [subCategoryId], references: [id])
-  supplier       Suppliers?       @relation(fields: [supplierId], references: [id])
-  isActive       Boolean          @default(true)
-  created_at     DateTime         @default(now())
-  updated_at     DateTime         @updatedAt
-  OrdersPiece    OrdersPiece[]
-  RequestsPieces RequestsPieces[]
-  Alerts         Alerts[]
+  category        Categories?       @relation(fields: [categoryId], references: [id])
+  subcategory     SubCategories?    @relation(fields: [subCategoryId], references: [id])
+  supplier        Suppliers?        @relation(fields: [supplierId], references: [id])
+  isActive        Boolean           @default(true)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+  OrdersPiece     OrdersPiece[]
+  PiecesWarehouse PiecesWarehouse[]
 
+  @@unique([partNumber])
   @@map("pieces")
+}
+
+model PiecesWarehouse {
+  id String @id @default(uuid())
+
+  locationInWarehouse String           @default("No Description")
+  quantity            Int              @default(0)
+  warehouseId         String
+  pieceId             String
+  created_at          DateTime         @default(now())
+  updated_at          DateTime         @updatedAt
+  RequestsPieces      RequestsPieces[]
+  Warehouse           Warehouse        @relation(fields: [warehouseId], references: [id], onUpdate: NoAction)
+  Piece               Pieces           @relation(fields: [pieceId], references: [id], onUpdate: NoAction)
+  Alerts              Alerts[]
+
+  @@unique([pieceId, warehouseId])
+  @@map("pieces_warehouse")
 }
 
 model Categories {
@@ -166,23 +180,26 @@ model Orders {
   reference    String        @default("00")
   state        String        @default("Em curso")
   isActive     Boolean       @default(true)
+  requestId    String?
   created_at   DateTime      @default(now())
   updated_at   DateTime      @updatedAt
   OrdersPiece  OrdersPiece[]
+  Request      Requests?     @relation(fields: [requestId], references: [id])
 
   @@map("order")
 }
 
 model OrdersPiece {
-  pieceId    String
-  piece      Pieces   @relation(fields: [pieceId], references: [id])
-  orderId    String
-  Order      Orders   @relation(fields: [orderId], references: [id])
-  quantity   Float
-  price      Float
-  isActive   Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  pieceId       String
+  Piece         Pieces   @relation(fields: [pieceId], references: [id])
+  orderId       String
+  Order         Orders   @relation(fields: [orderId], references: [id])
+  quantity      Float
+  quantityGiven Float?   @default(0)
+  price         Float
+  isActive      Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
   @@id([pieceId, orderId])
 }
@@ -213,32 +230,32 @@ model Requests {
   warehouseIncomming    Warehouse?       @relation(name: "warehouseIncommingRequest", fields: [warehouseIdIncomming], references: [id])
   warehouseOutcomming   Warehouse?       @relation(name: "warehouseOutcommingRequest", fields: [warehouseIdOutcomming], references: [id])
   RequestsPieces        RequestsPieces[]
+  Orders                Orders[]
 
   @@map("requests")
 }
 
 model RequestsPieces {
   id               String              @id @default(uuid())
-  pieceId          String
-  piece            Pieces              @relation(fields: [pieceId], references: [id])
+  pieceWarehouseId String
   requestId        String
-  request          Requests            @relation(fields: [requestId], references: [id])
+  request          Requests            @relation(fields: [requestId], references: [id], onUpdate: NoAction)
   quantity         Int
   quantityGiven    Int?
   created_at       DateTime            @default(now())
   updated_at       DateTime            @default(now()) @updatedAt
   InvoiceReciepmen InvoiceReciepment[]
+  PiecesWarehouse  PiecesWarehouse?    @relation(fields: [pieceWarehouseId], references: [id], onUpdate: NoAction)
 }
 
 model InvoiceReciepment {
   id              String         @id @default(uuid())
   partNumber      String
-  numberSeries    String         @default("0")
   description     String
   number_series   String?
   quantity        Int            @default(0)
   requestPiecesId String
-  request         RequestsPieces @relation(fields: [requestPiecesId], references: [id])
+  RequestPieces   RequestsPieces @relation(fields: [requestPiecesId], references: [id])
 
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt
@@ -259,11 +276,11 @@ model LogsActivities {
 model Alerts {
   id String @id @default(uuid())
 
-  warehouseId String
-  pieceId     String
+  warehouseId      String
+  pieceWarehouseId String
 
-  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
-  piece     Pieces    @relation(fields: [pieceId], references: [id])
+  warehouse      Warehouse       @relation(fields: [warehouseId], references: [id])
+  pieceWarehouse PiecesWarehouse @relation(fields: [pieceWarehouseId], references: [id])
 
   description String
 

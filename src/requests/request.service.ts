@@ -9,6 +9,7 @@ import { InvoiceReciepmentDao } from '../invoice/invoice.dao';
 import { LogsActivitiesDao } from 'src/logs-activities/logs-activities.dao';
 import { AlertsDao } from 'src/alerts/alerts.dao';
 import { EmailService } from 'src/email/email.service';
+import { OrderDao } from 'src/orders/order.dao';
 
 enum RequestStatus {
   ONGOING = "finalizada parcialmente",
@@ -21,6 +22,7 @@ export class RequestService {
     private requestsDao: RequestDao,
     private invoiceRecipment: InvoiceReciepmentDao,
     private pieceDao: PieceDao,
+    private orderDao: OrderDao,
     private logsActivitiesDao: LogsActivitiesDao,
     private alertsDao: AlertsDao,
     private emailService: EmailService
@@ -36,7 +38,7 @@ export class RequestService {
 
 
     createPieceDto.request = createPieceDto.request.map((dto) => {
-      const fakeQuantity = dto.quantity - dto.quantityRequested
+      const fakeQuantity = Number(dto.quantity) - Number(dto.quantityRequested)
       this.pieceDao.updateQuantity(dto.pieceId, fakeQuantity)
       return {
         ...dto,
@@ -59,7 +61,34 @@ export class RequestService {
   }
 
   async findOne(id: string) {
-    return await this.requestsDao.find(id);
+    const data = await this.requestsDao.find(id);
+
+    let dataToBeReturned = data
+    const piecesWithNewPrice = []
+
+    if (data?.RequestsPieces !== null)
+      for (const request of data.RequestsPieces) {
+
+        let pieceData = await this.pieceDao.findByWarehouseAndPiece(request.PiecesWarehouse.Piece.id, data.warehouseOutcomming.id)
+        piecesWithNewPrice.push({
+          ...request,
+          id: request.PiecesWarehouse.id,
+          name: request.PiecesWarehouse.Piece.name,
+          price: request.PiecesWarehouse.Piece.price,
+          partNumber: request.PiecesWarehouse.Piece.partNumber,
+          locationInWarehouse: request.PiecesWarehouse.locationInWarehouse,
+          quantityInStock: pieceData.quantity,
+          quantityRequested: request.quantity
+        })
+
+      }
+
+    dataToBeReturned = {
+      ...dataToBeReturned,
+      RequestsPieces: piecesWithNewPrice
+    }
+    return dataToBeReturned;
+
   }
 
   async update(id: string, updateRequestDto: UpdateRequestDTO) {
@@ -83,139 +112,114 @@ export class RequestService {
   }
 
   async acceptRequest(id: string, requestData: AcceptRequestDTO): Promise<any> {
-    await this.emailService.sendMail("bentojulio2022@gmail.com", "REQUISIÇÃO ACEITE", "ESTA REQUISICAO FOI ACEITE COM SUCESSO")
+    // await this.emailService.sendMail("bentojulio2022@gmail.com", "REQUISIÇÃO ACEITE", "ESTA REQUISICAO FOI ACEITE COM SUCESSO")
     /**
      * 
-     * WarehouseIncomming o armazem que recebe a requisição
-     * WarehouseOutcomming o armazem que envia a requisição
-     * Out saida de requisicao ||| In entrada de requisição
+     * WarehouseIncomming o armazem que envia a requisição - PARA ONDE AS PEÇAS VÃO  - DESTINO
+     * WarehouseOutcomming o armazem que recebe a requisição - DE ONDE AS PEÇAS VIRÃO - ORIGEM
      */
     const request = await this.requestsDao.find(id)
     let isRequestFinished = false
-    let piecesOfRequest !: any
+    let orderPiecesData = []
     const returnmentData = []
     for (let piece of requestData.pieceData) {
-      let sumQuantityGiven = Number(piece.quantityGiven)
       let totalQuantityGiven = Number(piece.quantityGiven) - Number(piece.number_series.length)
 
+      let pieceData = await this.pieceDao.findPieceWarehouse(piece.pieceWarehouseId)
+      const requestPiece = await this.requestsDao.findByRequestAndPieceId(id, piece.pieceWarehouseId)
 
-      let pieceData = await this.pieceDao.find(piece.pieceId)
-      const requestPiece = await this.requestsDao.findByRequestAndPieceId(id, piece.pieceId)
       pieceData = await this.pieceDao.updateQuantity(pieceData.id, Number(Number(pieceData.quantity) + Number(requestPiece.quantity)))
+
       const leftQuantityOfPieces = Number(pieceData.quantity) - Number(piece.quantityGiven)
-      await this.pieceDao.updateQuantity(piece.pieceId, leftQuantityOfPieces)
+      await this.pieceDao.updateQuantity(pieceData.id, leftQuantityOfPieces)
 
-      if (pieceData.target >= leftQuantityOfPieces) {
+      if (pieceData.Piece.target >= leftQuantityOfPieces) {
         this.alertsDao.create({
-          description: `A Peça ${pieceData.name} atingiu o set target.`,
-          pieceId: pieceData.id,
+          description: `A Peça ${pieceData.Piece.name} atingiu o set target.`,
+          pieceWarehouseId: pieceData.id,
           warehouseId: request.warehouseOutcomming.id
         })
-        await this.emailService.sendMail("bentojulio2022@gmail.com", "PEÇA ATINGIU O SEU TARGET", `A Peça ${pieceData.name} atingiu o set target.`)
       }
 
-      if (pieceData.min >= leftQuantityOfPieces) {
+      if (pieceData.Piece.min >= leftQuantityOfPieces) {
         this.alertsDao.create({
-          description: `A Peça ${pieceData.name} atingiu a sua quantidade mínina.`,
-          pieceId: pieceData.id,
+          description: `A Peça ${pieceData.Piece.name} atingiu a sua quantidade mínina.`,
+          pieceWarehouseId: pieceData.id,
           warehouseId: request.warehouseOutcomming.id
         })
-        await this.emailService.sendMail("bentojulio2022@gmail.com", "PEÇA ATINGIU A SUA QUANTIDADE MINIMA", `A Peça ${pieceData.name} atingiu a sua quantidade mínina.`)
-
       }
-      piecesOfRequest = await this.pieceDao.findByPartNumberAndWarehouse(request.warehouseIdOutcomming, pieceData.partNumber)
 
-
-      if (piecesOfRequest !== null) {
-
-        sumQuantityGiven = Number(piecesOfRequest.quantity) + Number(piece.quantityGiven)
-
-
-        await this.pieceDao.updateQuantity(piecesOfRequest.id, sumQuantityGiven)
-
-      } else {
-        piecesOfRequest = await this.pieceDao.create({
-          name: pieceData.name,
-          brand_name: pieceData.brand_name,
-          description: pieceData.description,
-          price: pieceData.price,
-          state: pieceData.state,
-          partNumber: pieceData.partNumber,
-          locationInWarehouse: pieceData.locationInWarehouse,
-          target: pieceData.target,
-          min: pieceData.min,
-          quantity: Number(piece.quantityGiven),
-          warehouse: {
-            connect: {
-              id: request.warehouseIdOutcomming
-            }
-          },
-          category: {
-            connect: {
-              id: pieceData.categoryId
-            }
-          },
-          subcategory: {
-            connect: {
-              id: pieceData.subCategoryId
-            }
-          },
-          supplier: {
-            connect: {
-              id: pieceData.supplierId
-            }
-          },
-        })
-
+      //So acontece se os dois armazens forem moveis um if aqui
+      if (request.warehouseIncomming.type === "Embarcação") {
+        let piecesOfRequest = await this.pieceDao.findByPartNumberAndWarehouse(request.warehouseIncomming.id, pieceData.Piece.partNumber)
+        if (piecesOfRequest !== null) {
+          let sumQuantityGiven = Number(piecesOfRequest.quantity) + Number(piece.quantityGiven)
+          await this.pieceDao.updateQuantity(piecesOfRequest.id, sumQuantityGiven)
+        } else {
+          piecesOfRequest = await this.pieceDao.createPieceInWarehouse({
+            locationInWarehouse: pieceData.locationInWarehouse,
+            quantity: Number(piece.quantityGiven),
+            warehouseId: request.warehouseIncomming.id,
+            pieceId: pieceData.Piece.id
+          })
+        }
       }
+
       let finalQuantity = Number(piece.quantityGiven) - piece.number_series.length
+      if (finalQuantity > 0) {
+        await this.invoiceRecipment.create({
+          description: pieceData.Piece.description,
+          partNumber: pieceData.Piece.partNumber,
+          requestPieceId: requestPiece.id,
+          numberSeries: "N/A",
+          quantity: Number(finalQuantity),
+          quantityGiven: Number(piece.quantityGiven)
+        })
 
-      console.log("DEBUG", finalQuantity, piece.quantityGiven, piece.number_series)
-      await this.invoiceRecipment.create({
-        description: pieceData.description,
-        partNumber: pieceData.partNumber,
-        requestPieceId: requestPiece.id,
-        numberSeries: "N/A",
-        quantity: Number(finalQuantity),
-        quantityGiven: Number(piece.quantityGiven)
-      })
-
-      returnmentData.push({
-        pieceName: pieceData.name,
-        description: pieceData.description,
-        partNumber: pieceData.partNumber,
-        numberSeries: "N/A",
-        requestPieceId: piece.pieceId,
-        price: pieceData.price,
-        quantity: Number(finalQuantity)
-      })
-
+        returnmentData.push({
+          pieceName: pieceData.Piece.name,
+          description: pieceData.Piece.description,
+          partNumber: pieceData.Piece.partNumber,
+          numberSeries: "N/A",
+          requestPieceId: requestPiece.id,
+          price: pieceData.Piece.price,
+          quantity: Number(finalQuantity)
+        })
+      }
+      //So acontece se os dois armazens forem fixos um if aqui
+      if (request.warehouseIncomming.type === "Armazém") {
+        orderPiecesData.push({
+          pieceId: pieceData.Piece.id,
+          quantity: Number(piece.quantityGiven),
+          price: pieceData.Piece.price
+        })
+      }
 
       piece.number_series.forEach(async (nseries) => {
         await this.invoiceRecipment.create({
-          description: pieceData.description,
-          partNumber: pieceData.partNumber,
+          description: pieceData.Piece.description,
+          partNumber: pieceData.Piece.partNumber,
           requestPieceId: requestPiece.id,
           created_at: requestPiece.created_at,
           numberSeries: nseries,
           quantity: 1
         })
         returnmentData.push({
-          pieceName: pieceData.name,
-          description: pieceData.description,
-          partNumber: pieceData.partNumber,
+          pieceName: pieceData.Piece.name,
+          description: pieceData.Piece.description,
+          partNumber: pieceData.Piece.partNumber,
           numberSeries: nseries,
-          requestPieceId: piece.pieceId,
-          price: pieceData.price,
+          requestPieceId: requestPiece.id,
+          price: pieceData.Piece.price,
           quantity: 1
         })
       })
       //Validar o numero de peças pretendido e o numero de peças dado
-
       await this.requestsDao.updateQuantityGivenInRequestPieces(requestPiece.id, Number(piece.quantityGiven))
-
       isRequestFinished = piece.quantityGiven >= requestPiece.quantity
     }
+
+
     await this.requestsDao.changeStateOfRequest(id, isRequestFinished ? RequestStatus.FINISHED : RequestStatus.ONGOING);
     const warehouseOutcomming = request.warehouseOutcomming.name
     const warehouseIncomming = request.warehouseIncomming.name
@@ -224,6 +228,20 @@ export class RequestService {
       userId: requestData.userId,
       description: "Requisição aceite"
     })
+
+
+    //So acontece se os dois armazens forem fixos um if aqui
+    if (request.warehouseIncomming.type === "Armazém") {
+      await this.orderDao.create({
+        request: orderPiecesData,
+        description: "ENC_INT " + request.numberPr,
+        number_order: request.numberPr,
+        imbl_awb: request.numberPr,
+        reference: request.numberPr,
+        state: "Em curso",
+        requestId: request.id
+      })
+    }
 
     return {
       returnmentData,
@@ -239,15 +257,15 @@ export class RequestService {
     return await this.invoiceRecipment.list('')
   }
 
-  async findByState(state: string) {
-    return await this.requestsDao.findByState(state)
+  async findByState(state: string, warehouseId: string) {
+    return await this.requestsDao.findByState(state, warehouseId)
   }
 
   async revert(id: string) {
     let request = await this.requestsDao.find(id)
 
     request.RequestsPieces.forEach(async (requestPiece) => {
-      const piece = await this.pieceDao.find(requestPiece.pieceId)
+      const piece = await this.pieceDao.findPieceWarehouse(requestPiece.pieceId)
       this.pieceDao.updateQuantity(piece.id, requestPiece.quantity + piece.quantity)
     })
 

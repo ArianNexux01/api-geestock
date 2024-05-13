@@ -19,7 +19,7 @@ export class AcceptRequestDTO {
     pieceData: {
         number_series: string[]
         quantityGiven: number
-        pieceId: string
+        pieceWarehouseId: string
     }[]
 
     @IsString()

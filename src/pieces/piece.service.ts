@@ -20,29 +20,38 @@ export class PieceService {
     await this.piecesDao.create(createPieceDto);
   }
 
-  async findAll(searchParam: string, onlyActive: number) {
+  async findAll(searchParam: string, onlyActive: number, onlyWithQuantity: number) {
     const pieces = await this.piecesDao.list(searchParam, onlyActive);
-    const piecesToReturn = pieces.map(e => ({
-      id: e.id,
-      name: e.name,
-      description: e.description,
-      quantity: e.quantity,
-      price: e.price,
-      warehouse: e.warehouse,
-      state: e.state,
-      brand_name: e.brand_name,
-      supplierId: e.supplierId,
-      partNumber: e.partNumber,
-      isActive: e.isActive,
-      warehouseId: e.warehouseId,
-      categoryId: e.categoryId,
-      subCategoryId: e.subCategoryId,
-      locationInWarehouse: e.locationInWarehouse,
-      target: e.target,
-      min: e.min,
-      created_at: e.created_at,
-      updated_at: e.updated_at
-    }))
+    let totalPrice = 0
+    const piecesToReturn = []
+    pieces.forEach(async (e) => {
+      const sumQuantity = e.PiecesWarehouse.reduce(
+        (accumulator, currentValue) => accumulator + currentValue.quantity,
+        0,
+      );
+
+      totalPrice = sumQuantity * e.price
+      if (totalPrice <= 0 && onlyWithQuantity == 1) {
+        return;
+      }
+
+      piecesToReturn.push({
+        id: e.id,
+        name: e.name,
+        description: e.description,
+        quantity: sumQuantity,
+        price: e.price,
+        state: e.state,
+        brand_name: e.brand_name,
+        partNumber: e.partNumber,
+        isActive: e.isActive,
+        target: e.target,
+        min: e.min,
+        created_at: e.created_at,
+        updated_at: e.updated_at,
+        totalPrice: totalPrice
+      })
+    })
     return piecesToReturn;
   }
 
@@ -63,7 +72,22 @@ export class PieceService {
     await this.piecesDao.delete(id);
   }
   async findByWarehouse(id: string, searchParam: string) {
-    return await this.piecesDao.findByWarehouseId(id, searchParam)
+    let returnedData = await this.piecesDao.findByWarehouseId(id, searchParam)
+    /* const sumQuantity = e.PiecesWarehouse.reduce(
+       (accumulator, currentValue) => accumulator + currentValue.quantity,
+       0,
+     );*/
+
+    returnedData = returnedData.map((data) => ({
+      ...data,
+      name: data.Piece.name,
+      partNumber: data.Piece.partNumber,
+      description: data.Piece.description,
+      price: data.Piece.price,
+      totalPrice: data.Piece.price * data.quantity
+    }))
+
+    return returnedData
   }
 
   async changeStatus(id: string, status: number) {

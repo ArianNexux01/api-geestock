@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsEnum, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator"
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator"
 
 export class ConfirmOrderDTO {
 
@@ -11,7 +11,21 @@ export class ConfirmOrderDTO {
         pieceId: string
         quantity: number,
         locationInWarehouse: string
+        price: number
+
     }]
+
+    @IsBoolean()
+    @ApiProperty({
+        example: "id"
+    })
+    isPartial: boolean
+
+    @IsString()
+    @ApiProperty({
+        example: "id"
+    })
+    warehouseId: string
 
     @IsString()
     @ApiProperty({

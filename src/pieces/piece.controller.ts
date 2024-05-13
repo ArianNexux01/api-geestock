@@ -32,9 +32,15 @@ export class PieceController {
     type: Number,
     required: false
   })
+
+  @ApiQuery({
+    name: "onlyWithQuantity",
+    type: Number,
+    required: false
+  })
   @Get()
-  findAll(@Query('searchParam') searchParam?: string, @Query('onlyActive') onlyActive?: number) {
-    return this.pieceService.findAll(searchParam, onlyActive);
+  findAll(@Query('searchParam') searchParam?: string, @Query('onlyActive') onlyActive?: number, @Query('onlyWithQuantity') onlyWithQuantity?: number) {
+    return this.pieceService.findAll(searchParam, onlyActive, onlyWithQuantity);
   }
 
   @Get(':id')

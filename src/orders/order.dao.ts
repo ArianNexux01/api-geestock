@@ -10,16 +10,14 @@ export class OrderDao {
         const ordersPieceData = data.request.map(e => ({
             pieceId: e.pieceId,
             quantity: e.quantity,
-            price: e.price
+            price: Number(e.price)
         }))
-        console.log("teste", data)
+
+        delete data.request
+
         return this.prisma.orders.create({
             data: {
-                description: data.description,
-                number_order: data.number_order,
-                imbl_awb: data.imbl_awb,
-                reference: data.reference,
-                state: data.state,
+                ...data,
                 OrdersPiece: {
                     createMany: {
                         data: ordersPieceData
@@ -29,33 +27,49 @@ export class OrderDao {
         });
     }
 
-    async list(searchParam: string, warehouseId: string): Promise<any[]> {
+    async list(searchParam: string, state: string): Promise<any[]> {
         if (searchParam !== undefined && searchParam !== '') {
-            const orders = await this.prisma.orders.findMany({
-                where: {
-                    OR: [
-                        {
-                            imbl_awb: {
-                                contains: searchParam,
-                            }
-                        },
-                        {
-                            description: {
-                                contains: searchParam,
-                            }
-                        },
-                        {
-                            OrdersPiece: {
-                                every: {
-                                    piece: {
-                                        warehouse: {
+            let argFilterParam: any = [
+                {
+                    imbl_awb: {
+                        contains: searchParam,
+                    }
+                },
+                {
+                    description: {
+                        contains: searchParam,
+                    }
+                },
+
+                {
+                    OrdersPiece: {
+                        every: {
+                            Piece: {
+                                PiecesWarehouse: {
+                                    every: {
+                                        Warehouse: {
                                             id: searchParam
                                         }
                                     }
                                 }
                             }
                         }
-                    ]
+                    }
+                }
+            ]
+
+            if (state !== null) {
+                argFilterParam.push({
+                    state: {
+                        equals: searchParam,
+                    }
+                })
+            }
+            const orders = await this.prisma.orders.findMany({
+                where: {
+                    requestId: null,
+                    OR: argFilterParam
+
                 },
                 include: {
                     OrdersPiece: {
@@ -63,8 +77,9 @@ export class OrderDao {
                             orderId: true,
                             pieceId: true,
                             quantity: true,
-                            piece: {
+                            Piece: {
                                 select: {
+                                    id: true,
                                     name: true,
                                     partNumber: true,
                                 }
@@ -79,18 +94,31 @@ export class OrderDao {
 
             return orders;
         }
+
+        let whereArg: any = {
+            requestId: null
+        }
+
+        if (state !== null) {
+            whereArg = {
+                ...whereArg,
+                state: {
+                    equals: state
+                }
+            }
+        }
         const orders = await this.prisma.orders.findMany({
+            where: whereArg,
             include: {
                 OrdersPiece: {
                     select: {
                         orderId: true,
                         pieceId: true,
                         quantity: true,
-                        piece: {
+                        Piece: {
                             select: {
                                 name: true,
                                 partNumber: true,
-
                             }
                         }
                     }
@@ -104,23 +132,197 @@ export class OrderDao {
         return orders;
     }
 
-    async find(id: string): Promise<any | null> {
+    async listByWarehouseInCommingId(warehouseId: string, searchParam: string): Promise<any[]> {
+        let orders: any;
+        if (searchParam === undefined || searchParam === "") {
+            orders = await this.prisma.orders.findMany({
+                where: {
+                    AND: [{
+                        Request: {
+                            warehouseIdIncomming: warehouseId
+                        },
+                        OR: [
+                            {
+                                imbl_awb: {
+                                    contains: searchParam,
+                                }
+                            },
+                            {
+                                description: {
+                                    contains: searchParam,
+                                }
+                            },
+                            {
+                                state: {
+                                    equals: searchParam,
+                                }
+                            }
+                        ]
+                    }]
+                },
+                include: {
+                    OrdersPiece: {
+                        select: {
+                            orderId: true,
+                            pieceId: true,
+                            quantity: true,
+                            Piece: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    partNumber: true,
+                                }
+                            }
+                        }
+                    }
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            });
+
+            return orders
+        }
+        orders = await this.prisma.orders.findMany({
+            where: {
+                Request: {
+                    warehouseIdIncomming: warehouseId
+                }
+            },
+            include: {
+                OrdersPiece: {
+                    select: {
+                        orderId: true,
+                        pieceId: true,
+                        quantity: true,
+                        Piece: {
+                            select: {
+                                id: true,
+                                name: true,
+                                partNumber: true,
+                            }
+                        }
+                    }
+                }
+            },
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
+
+        return orders;
+    }
+
+    async listByWarehouseId(warehouseId: string, searchParam: string): Promise<any[]> {
+        let orders: any;
+        if (searchParam === undefined || searchParam === "") {
+            orders = await this.prisma.orders.findMany({
+                where: {
+                    AND: [{
+                        Request: {
+                            warehouseIdOutcomming: warehouseId
+                        },
+                        OR: [
+                            {
+                                imbl_awb: {
+                                    contains: searchParam,
+                                }
+                            },
+                            {
+                                description: {
+                                    contains: searchParam,
+                                }
+                            },
+                            {
+                                state: {
+                                    equals: searchParam,
+                                }
+                            }
+                        ]
+                    }]
+                },
+                include: {
+                    OrdersPiece: {
+                        select: {
+                            orderId: true,
+                            pieceId: true,
+                            quantity: true,
+                            Piece: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    partNumber: true,
+                                }
+                            }
+                        }
+                    }
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            });
+
+            return orders
+        }
+        orders = await this.prisma.orders.findMany({
+            where: {
+                Request: {
+                    warehouseIdOutcomming: warehouseId
+                }
+            },
+            include: {
+                OrdersPiece: {
+                    select: {
+                        orderId: true,
+                        pieceId: true,
+                        quantity: true,
+                        Piece: {
+                            select: {
+                                id: true,
+                                name: true,
+                                partNumber: true,
+                            }
+                        }
+                    }
+                }
+            },
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
+
+        return orders;
+    }
+
+
+    async findByWarehouseId(id: string, warehouseId: string): Promise<any | null> {
         return this.prisma.orders.findFirst({
-            where: { id }, include: {
+            where: { id },
+            include: {
                 OrdersPiece: {
                     select: {
                         pieceId: true,
                         price: true,
                         quantity: true,
-                        piece: {
+                        quantityGiven: true,
+                        Piece: {
                             select: {
                                 name: true,
                                 partNumber: true,
-                                warehouse: {
+                                PiecesWarehouse: {
                                     select: {
-                                        name: true,
+                                        locationInWarehouse: true,
+                                        Warehouse: {
+                                            select: {
+                                                name: true,
+                                            }
+                                        }
+                                    },
+                                    where: {
+                                        warehouseId
                                     }
                                 }
+
                             }
                         }
                     }
@@ -153,7 +355,7 @@ export class OrderDao {
         return this.prisma.orders.delete({ where: { id } });
     }
 
-    async changeStateAndPrice(orderId: string, state: string, pieceId?: string): Promise<any> {
+    async changeStateAndPrice(orderId: string, state: string, pieceId?: string, quantityGiven?: number): Promise<any> {
         const user = await this.prisma.ordersPiece.update({
             where: {
                 pieceId_orderId: {
@@ -162,6 +364,7 @@ export class OrderDao {
                 }
             },
             data: {
+                quantityGiven,
                 Order: {
                     update: {
                         state
@@ -182,8 +385,12 @@ export class OrderDao {
                 where: {
                     OrdersPiece: {
                         some: {
-                            piece: {
-                                warehouseId
+                            Piece: {
+                                PiecesWarehouse: {
+                                    some: {
+                                        warehouseId
+                                    }
+                                }
                             }
                         }
                     }

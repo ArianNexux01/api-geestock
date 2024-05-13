@@ -9,6 +9,6 @@ import { LogsActivitiesModule } from 'src/logs-activities/logs-activities.module
   imports: [PrismaModule, LogsActivitiesModule],
   controllers: [PieceController],
   providers: [PieceService, PieceDao],
-  exports: [PieceDao]
+  exports: [PieceDao, PieceService]
 })
 export class PieceModule { }

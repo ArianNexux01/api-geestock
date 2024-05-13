@@ -1,7 +1,27 @@
-import { Prisma, Pieces } from '@prisma/client';
+import { Prisma, Pieces, PiecesWarehouse } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { LogsActivitiesDao } from 'src/logs-activities/logs-activities.dao';
+import { CreatePieceDto } from './dto/create-piece.dto';
+import { WASI } from 'wasi';
+
+type PiecesWarehouseWithPiece = {
+    id: string
+    locationInWarehouse: string
+    quantity: number
+    warehouseId: string
+    pieceId: string
+    created_at: Date
+    updated_at: Date
+    Piece: Pieces
+}
+
+type PieceInWarehouse = {
+    quantity: number
+    locationInWarehouse: string
+    pieceId: string
+    warehouseId: string
+}
 
 @Injectable()
 export class PieceDao {
@@ -9,34 +29,27 @@ export class PieceDao {
         private readonly prisma: PrismaService,
     ) { }
 
-    async create(data: any): Promise<any> {
-
+    async create(data: CreatePieceDto): Promise<any> {
+        console.log(data)
         return this.prisma.pieces.create({ data });
 
+    }
+
+    async createPieceInWarehouse(data: PieceInWarehouse): Promise<any> {
+        return this.prisma.piecesWarehouse.create({
+            data: {
+                quantity: data.quantity,
+                locationInWarehouse: data.locationInWarehouse,
+                pieceId: data.pieceId,
+                warehouseId: data.warehouseId
+            }
+        });
     }
 
     async list(searchParam?: string, onlyActive?: number): Promise<any> {
         let pieces: any;
         let where: any;
-        let select = {
-            brand_name: true,
-            id: true,
-            description: true,
-            locationInWarehouse: true,
-            partNumber: true,
-            name: true,
-            price: true,
-            state: true,
-            target: true,
-            min: true,
-            isActive: true,
-            quantity: true,
-            warehouse: {
-                select: {
-                    name: true
-                }
-            }
-        }
+
 
         if (searchParam !== "" && searchParam !== undefined) {
             where = {
@@ -60,8 +73,12 @@ export class PieceDao {
                 AND: [
                     {
 
-                        warehouse: {
-                            isActive: true
+                        PiecesWarehouse: {
+                            every: {
+                                Warehouse: {
+                                    isActive: true,
+                                }
+                            }
                         },
 
                         OR: [
@@ -90,7 +107,28 @@ export class PieceDao {
                     created_at: 'desc'
                 },
                 where,
-                select
+
+                select: {
+                    brand_name: true,
+                    id: true,
+                    description: true,
+                    partNumber: true,
+                    name: true,
+                    price: true,
+                    state: true,
+
+                    target: true,
+                    min: true,
+                    isActive: true,
+                    created_at: true,
+                    updated_at: true,
+                    PiecesWarehouse: {
+                        include: {
+                            Warehouse: true
+                        }
+                    }
+                }
+
             });
 
             return pieces;
@@ -99,11 +137,43 @@ export class PieceDao {
             orderBy: {
                 created_at: 'desc'
             },
-            select
+            select: {
+                brand_name: true,
+                id: true,
+                description: true,
+                partNumber: true,
+                name: true,
+                price: true,
+                state: true,
+                target: true,
+                min: true,
+                isActive: true,
+                PiecesWarehouse: {
+                    select: {
+                        quantity: true,
+                        locationInWarehouse: true,
+                        pieceId: true,
+                        warehouseId: true
+                    }
+                }
+            }
+
         });
 
 
         return pieces;
+    }
+    async getQuantityOfAllPieces(partNumber: string) {
+        return (await this.prisma.piecesWarehouse.aggregate({
+            _sum: {
+                quantity: true
+            },
+            where: {
+                Piece: {
+                    partNumber: partNumber
+                }
+            }
+        }))._sum.quantity
     }
 
     async find(id: string): Promise<Pieces | null> {
@@ -113,13 +183,53 @@ export class PieceDao {
                 category: true,
                 subcategory: true,
                 supplier: true,
-                warehouse: true
+                PiecesWarehouse: {
+                    select: {
+                        quantity: true,
+                        id: true,
+                        Warehouse: true
+                    }
+                }
             },
         });
     }
 
+    async findPieceWarehouse(id: string): Promise<PiecesWarehouseWithPiece> {
+        return this.prisma.piecesWarehouse.findFirst({
+            where: { id },
+
+            include: {
+                Warehouse: true,
+                Piece: true,
+            }
+        })
+    }
+
+    async findPieceWarehouseByPieceId(id: string): Promise<PiecesWarehouseWithPiece> {
+        return this.prisma.piecesWarehouse.findFirst({
+            where: {
+                Piece: {
+                    id: id
+                }
+            },
+
+            include: {
+                Warehouse: true,
+                Piece: true,
+            }
+        })
+    }
     async update(id: string, data: Pieces): Promise<Pieces> {
         const piece = this.prisma.pieces.update({ where: { id }, data });
+        return piece
+    }
+
+    async updatePieceWarehouse(id: string, data: Pieces): Promise<PiecesWarehouseWithPiece> {
+        const piece = this.prisma.piecesWarehouse.update({
+            where: { id }, data, include: {
+                Piece: true,
+            }
+        });
         return piece
     }
 
@@ -127,12 +237,16 @@ export class PieceDao {
         return this.prisma.pieces.delete({ where: { id } });
     }
 
-    async increaseQuantity(id: string, quantity: number, locationInWarehouse: string): Promise<Pieces> {
-        const pieceFound = await this.find(id)
-        const piece = this.prisma.pieces.update({
-            where: { id },
+    async increaseQuantity(id: string, warehouseId: string, quantity: number, locationInWarehouse: string): Promise<PiecesWarehouse> {
+        const piece = this.prisma.piecesWarehouse.update({
+            where: {
+                pieceId_warehouseId: {
+                    pieceId: id,
+                    warehouseId: warehouseId
+                }
+            },
             data: {
-                quantity: pieceFound.quantity + quantity,
+                quantity: quantity,
                 locationInWarehouse: locationInWarehouse
             }
         });
@@ -140,17 +254,25 @@ export class PieceDao {
         return piece
     }
 
-    async updateQuantity(id: string, quantity: number): Promise<Pieces> {
-        const piece = this.prisma.pieces.update({
-            where: { id },
+    async updateQuantity(id: string, quantity: number): Promise<PiecesWarehouseWithPiece> {
+        console.log("updateQuantity", id)
+        const piece = this.prisma.piecesWarehouse.update({
+            where: {
+                id
+            },
             data: {
                 quantity: quantity
             },
             include: {
-                category: true,
-                subcategory: true,
-                supplier: true,
-                warehouse: true
+                Piece: {
+                    include: {
+                        category: true,
+                        subcategory: true,
+                        supplier: true,
+                    }
+                },
+                Warehouse: true
+
             },
         });
         return piece
@@ -166,7 +288,7 @@ export class PieceDao {
     }
 
     async updateWarehouse(id: string, warehouse: string): Promise<any> {
-        const piece = await this.prisma.pieces.update({
+        const piece = await this.prisma.piecesWarehouse.update({
             where: { id },
             data: {
                 warehouseId: warehouse
@@ -177,31 +299,41 @@ export class PieceDao {
 
     async findByWarehouseId(warehouseId: string, searchParam: string): Promise<any> {
         if (searchParam !== "" && searchParam !== undefined) {
-            const piecesByWarehouse = await this.prisma.pieces.findMany({
+            const piecesByWarehouse = await this.prisma.piecesWarehouse.findMany({
                 where: {
                     AND: [
                         { warehouseId },
                         {
-                            warehouse: {
+                            Warehouse: {
                                 isActive: true
+                            },
+                            Piece: {
+                                isActive: true,
                             }
                         },
+
                         {
                             OR: [
                                 {
-                                    partNumber: {
-                                        contains: searchParam,
-                                    },
+                                    Piece: {
+                                        partNumber: {
+                                            contains: searchParam,
+                                        },
+                                    }
                                 },
                                 {
-                                    name: {
-                                        contains: searchParam,
-                                    },
+                                    Piece: {
+                                        name: {
+                                            contains: searchParam,
+                                        },
+                                    }
                                 },
                             ]
-                        },
-                        { isActive: true },
+                        }
                     ]
+                },
+                include: {
+                    Piece: true
                 },
                 orderBy: {
                     created_at: 'desc'
@@ -209,15 +341,20 @@ export class PieceDao {
             })
             return piecesByWarehouse
         }
-        const piecesByWarehouse = await this.prisma.pieces.findMany({
+        const piecesByWarehouse = await this.prisma.piecesWarehouse.findMany({
             where: {
                 AND: [
                     { warehouseId },
                     {
-                        isActive: true
+                        Piece: {
+                            isActive: true,
+                        }
                     }
                 ]
 
+            },
+            include: {
+                Piece: true
             },
             orderBy: {
                 created_at: 'desc'
@@ -227,40 +364,50 @@ export class PieceDao {
     }
 
     async findByPartNumberAndWarehouse(warehouseId: string, partNumber: string) {
-        const piecesByWarehousePartNumber = await this.prisma.pieces.findFirst({
+        const piecesByWarehousePartNumber = await this.prisma.piecesWarehouse.findFirst({
             where: {
                 warehouseId,
-                partNumber,
+                Piece: {
+                    partNumber: partNumber,
+                },
 
             }
         })
         return piecesByWarehousePartNumber
     }
 
+    async findByWarehouseAndPiece(pieceId: string, warehouseId: string): Promise<PiecesWarehouse> {
+        return await this.prisma.piecesWarehouse.findFirst({
+            where: {
+                AND: [{
+                    pieceId: pieceId,
+                    warehouseId: warehouseId
+                }]
+            }
+        })
+    }
     async count(warehouseId: string): Promise<any> {
         if (warehouseId !== undefined) {
-            return (await this.prisma.pieces.aggregate({
+            return (await this.prisma.piecesWarehouse.aggregate({
                 _sum: {
                     quantity: true
                 },
                 where: {
                     AND: [{
                         warehouseId: warehouseId,
-                        warehouse: {
-                            type: 'Armazém',
+                        Warehouse: {
                             isActive: true
                         }
                     }]
                 }
             }))._sum.quantity;
         }
-        return (await this.prisma.pieces.aggregate({
+        return (await this.prisma.piecesWarehouse.aggregate({
             _sum: {
                 quantity: true
             },
             where: {
-                warehouse: {
-                    type: 'Armazém',
+                Piece: {
                     isActive: true
                 }
             }

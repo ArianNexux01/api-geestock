@@ -1,6 +1,7 @@
 import { Prisma, Pieces, Requests } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { equals } from 'class-validator';
 
 @Injectable()
 export class RequestDao {
@@ -9,7 +10,7 @@ export class RequestDao {
     async create(data: any): Promise<any> {
         console.log(data);
         const requestPiecesData = data.request.map(e => ({
-            pieceId: e.pieceId,
+            pieceWarehouseId: e.pieceId,
             quantity: e.quantityRequested
         }))
         return this.prisma.requests.create({
@@ -60,18 +61,28 @@ export class RequestDao {
                 include: {
                     warehouseIncomming: {
                         select: {
+                            id: true,
+                            name: true
+                        }
+                    },
+                    warehouseOutcomming: {
+                        select: {
+                            id: true,
                             name: true
                         }
                     },
                     RequestsPieces: {
                         select: {
-                            pieceId: true,
+                            pieceWarehouseId: true,
                             quantity: true,
-
-                            piece: {
+                            PiecesWarehouse: {
                                 select: {
-                                    name: true,
-                                    price: true
+                                    Piece: {
+                                        select: {
+                                            name: true,
+                                            price: true,
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -92,16 +103,27 @@ export class RequestDao {
                         name: true
                     }
                 },
+                warehouseOutcomming: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                },
                 RequestsPieces: {
                     select: {
-                        pieceId: true,
+                        pieceWarehouseId: true,
                         quantity: true,
 
-                        piece: {
+                        PiecesWarehouse: {
                             select: {
-                                name: true,
-                                price: true
+                                Piece: {
+                                    select: {
+                                        name: true,
+                                        price: true
+                                    }
+                                }
                             }
+
                         }
                     }
                 }
@@ -121,19 +143,23 @@ export class RequestDao {
             include: {
                 warehouseIncomming: {
                     select: {
-                        name: true
+                        id: true,
+                        name: true,
+                        type: true
                     }
                 },
                 warehouseOutcomming: {
                     select: {
                         id: true,
-                        name: true
+                        name: true,
+                        type: true
+
                     }
                 },
                 RequestsPieces: {
                     select: {
                         id: true,
-                        pieceId: true,
+                        pieceWarehouseId: true,
                         quantity: true,
                         quantityGiven: true,
                         request: {
@@ -141,15 +167,20 @@ export class RequestDao {
                                 numberPr: true
                             }
                         },
-                        piece: {
+                        PiecesWarehouse: {
                             select: {
-                                name: true,
-                                price: true,
                                 id: true,
-                                partNumber: true,
-                                description: true,
                                 locationInWarehouse: true,
-                                quantity: true
+                                Piece: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        price: true,
+                                        partNumber: true,
+                                        description: true,
+                                    }
+
+                                }
                             }
                         }
                     }
@@ -178,7 +209,6 @@ export class RequestDao {
                     createMany: {
                         data: piecesData
                     }
-
                 },
                 warehouseIncomming: {
                     connect: {
@@ -222,15 +252,20 @@ export class RequestDao {
             include: {
                 RequestsPieces: {
                     select: {
-                        piece: {
+                        PiecesWarehouse: {
                             select: {
                                 id: true,
-                                name: true,
-                                partNumber: true,
-                                description: true,
-                                price: true,
                                 locationInWarehouse: true,
-                                quantity: true
+                                quantity: true,
+                                Piece: {
+                                    select: {
+
+                                        name: true,
+                                        partNumber: true,
+                                        description: true,
+                                        price: true,
+                                    }
+                                }
                             }
                         },
                         quantity: true,
@@ -281,13 +316,17 @@ export class RequestDao {
             include: {
                 RequestsPieces: {
                     select: {
-                        piece: {
+                        PiecesWarehouse: {
                             select: {
                                 id: true,
-                                name: true,
-                                partNumber: true,
-                                description: true,
-                                price: true
+                                Piece: {
+                                    select: {
+                                        name: true,
+                                        partNumber: true,
+                                        description: true,
+                                        price: true
+                                    }
+                                }
                             }
                         },
                         quantity: true,
@@ -328,18 +367,21 @@ export class RequestDao {
 
     async updateQuantityGivenInRequestPieces(id: string, quantityGiven: number) {
         const request = this.prisma.requestsPieces.update({
-            where: { id },
+            where: {
+                id
+
+            },
             data: { quantityGiven: Number(quantityGiven) }
         })
 
         return request
     }
 
-    async findByRequestAndPieceId(requestId: string, pieceId: string) {
+    async findByRequestAndPieceId(requestId: string, pieceWarehouseId: string) {
         return this.prisma.requestsPieces.findFirst({
             where: {
                 requestId,
-                pieceId
+                pieceWarehouseId
             }
         })
     }
@@ -369,12 +411,24 @@ export class RequestDao {
 
 
 
-    async findByState(state: string): Promise<any> {
+    async findByState(state: string, warehouseId: string): Promise<any> {
+        let where: any = {
+            state: state,
+            isActive: true
+        }
+
+        if (warehouseId !== "" && warehouseId !== undefined) {
+            where = {
+                state: state,
+                isActive: true,
+                warehouseIdOutcomming: warehouseId
+
+            }
+        }
         const request = await this.prisma.requests.findMany({
             where:
             {
-                state: state,
-                isActive: true
+                ...where
             },
             include: {
                 warehouseIncomming: {
@@ -389,13 +443,17 @@ export class RequestDao {
                 },
                 RequestsPieces: {
                     select: {
-                        pieceId: true,
+                        pieceWarehouseId: true,
                         quantity: true,
 
-                        piece: {
+                        PiecesWarehouse: {
                             select: {
-                                name: true,
-                                price: true
+                                Piece: {
+                                    select: {
+                                        name: true,
+                                        price: true
+                                    }
+                                }
                             }
                         }
                     }
@@ -406,7 +464,6 @@ export class RequestDao {
                 created_at: 'desc'
             }
         });
-        console.log(request)
         return request;
     }
 }

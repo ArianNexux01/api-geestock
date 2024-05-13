@@ -24,13 +24,13 @@ export class OrderController {
   }
 
   @Get()
-  findAll(@Query("searchParam") searchParam: string, @Query("warehouseId") warehouseId: string) {
-    return this.orderService.findAll(searchParam, warehouseId);
+  findAll(@Query("searchParam") searchParam: string, @Query("warehouseId") warehouseId: string, @Query("state") state: string, ) {
+    return this.orderService.findAll(searchParam, warehouseId, state);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(id);
+  findOne(@Param('id') id: string, @Query('curentWarehouse') warehouseId: string,) {
+    return this.orderService.findOne(id, warehouseId);
   }
 
   @ApiBearerAuth()

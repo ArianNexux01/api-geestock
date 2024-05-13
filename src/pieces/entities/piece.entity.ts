@@ -13,8 +13,6 @@ export class Piece {
 
     series_number: string
 
-    warehouseId: string
-
     categoryId: string
 
     subcategoryId: string

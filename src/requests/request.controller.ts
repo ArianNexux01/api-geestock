@@ -62,8 +62,8 @@ export class RequestController {
   }
 
   @Get('/by-state/:state')
-  async getByState(@Param('state') state: string) {
-    return await this.requestService.findByState(state);
+  async getByState(@Param('state') state: string, @Query("warehouseId") warehouseId: string) {
+    return await this.requestService.findByState(state, warehouseId);
   }
 
 

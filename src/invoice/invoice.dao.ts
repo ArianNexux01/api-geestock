@@ -13,7 +13,7 @@ export class InvoiceReciepmentDao {
                 number_series: data.numberSeries,
                 partNumber: data.partNumber,
                 quantity: data.quantity,
-                request: {
+                RequestPieces: {
                     connect: {
                         id: data.requestPieceId
                     }
@@ -29,8 +29,8 @@ export class InvoiceReciepmentDao {
         if (requestId !== '') {
             const request = await this.prisma.invoiceReciepment.findMany({
                 where: {
-                    request: {
-                        requestId
+                    RequestPieces: {
+                        requestId: requestId
                     }
                 },
                 select: {
@@ -39,19 +39,22 @@ export class InvoiceReciepmentDao {
                     number_series: true,
                     requestPiecesId: true,
                     quantity: true,
-                    request: {
+                    RequestPieces: {
                         select: {
                             id: true,
                             quantityGiven: true,
                             quantity: true,
-                            piece: {
+                            PiecesWarehouse: {
                                 select: {
-                                    name: true,
-                                    price: true,
-                                    description: true,
-                                    partNumber: true,
                                     quantity: true,
-
+                                    Piece: {
+                                        select: {
+                                            name: true,
+                                            price: true,
+                                            description: true,
+                                            partNumber: true,
+                                        }
+                                    }
                                 }
                             },
                             request: {
@@ -87,17 +90,21 @@ export class InvoiceReciepmentDao {
                 number_series: true,
                 requestPiecesId: true,
 
-                request: {
+                RequestPieces: {
                     select: {
                         id: true,
                         quantityGiven: true,
-                        piece: {
+                        PiecesWarehouse: {
                             select: {
-                                name: true,
-                                price: true,
-                                description: true,
-                                partNumber: true,
                                 quantity: true,
+                                Piece: {
+                                    select: {
+                                        name: true,
+                                        price: true,
+                                        description: true,
+                                        partNumber: true,
+                                    }
+                                }
                             }
                         },
                         request: {
@@ -117,7 +124,9 @@ export class InvoiceReciepmentDao {
 
     async find(id: string): Promise<any> {
         return this.prisma.invoiceReciepment.findFirst({
-            where: { id },
+            where: {
+                id
+            },
 
         });
     }
@@ -129,6 +138,53 @@ export class InvoiceReciepmentDao {
 
     async delete(id: string): Promise<any> {
         return this.prisma.invoiceReciepment.delete({ where: { id } });
+    }
+
+    async listRequestPieces(searchParam: string): Promise<any[]> {
+        if (searchParam !== "" && searchParam !== undefined) {
+            const request = await this.prisma.requestsPieces.findMany({
+                where: {
+                    OR: [
+                        {
+                            request: {
+                                warehouseIdOutcomming: searchParam
+                            },
+                        },
+
+                    ]
+                },
+                include: {
+                    request: {
+                        select: {
+                            name: true,
+                            numberPr: true
+                        }
+                    }
+
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            });
+
+            return request;
+        }
+        const request = await this.prisma.requestsPieces.findMany({
+            include: {
+                request: {
+                    select: {
+                        name: true,
+                        numberPr: true
+                    }
+                }
+
+            },
+            orderBy: {
+                created_at: 'desc'
+            }
+        });
+
+        return request;
     }
 
 }

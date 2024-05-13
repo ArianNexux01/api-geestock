@@ -31,13 +31,6 @@ export class CreatePieceDto {
     @ApiProperty({
         example: 10,
     })
-    quantity: number
-
-    @IsNumber()
-    @IsOptional()
-    @ApiProperty({
-        example: 10,
-    })
     target: number
 
     @IsString()
@@ -53,13 +46,6 @@ export class CreatePieceDto {
         example: 10,
     })
     min: number
-
-    @IsString()
-    @IsNotEmpty()
-    @ApiProperty({
-        example: '0001',
-    })
-    warehouseId: string
 
     @IsString()
     @IsNotEmpty()
@@ -109,12 +95,6 @@ export class CreatePieceDto {
         example: 'Teste, LDA',
     })
     brand_name: string
-
-    @IsOptional()
-    @ApiProperty({
-        example: 'Na fila 5, do corredor do elevador 12',
-    })
-    locationInWarehouse: string
 
 
     @ApiProperty({

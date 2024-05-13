@@ -14,30 +14,32 @@ export class InvoiceService {
     const response = await this.invoiceDao.list(requestId);
 
     const returnmentData = response.map(e => ({
-      pieceName: e.request.piece.name,
-      description: e.request.piece.description,
-      partNumber: e.partNumber,
+      pieceName: e.RequestPieces.PiecesWarehouse.Piece.name,
+      description: e.RequestPieces.PiecesWarehouse.Piece.description,
+      partNumber: e.RequestPieces.PiecesWarehouse.Piece.partNumber,
       numberSeries: e.number_series,
       requestPieceId: e.requestPiecesId,
       quantity: e.quantity,
-      quantityGiven: e.request.quantityGiven,
-      price: e.request.piece.price,
+      quantityGiven: e.quantityGiven,
+      price: e.RequestPieces.PiecesWarehouse.Piece.price,
     }))
-
-    console.log(response)
-
 
     const dataToBeReturned = {
       returnmentData,
-      warehouseIncomming: response[0].request.request.warehouseIncomming.name,
-      warehouseOutcomming: response[0].request.request.warehouseOutcomming.name,
-      numberPr: response[0].request.request.numberPr,
+      warehouseIncomming: response[0].RequestPieces.request.warehouseIncomming.name,
+      warehouseOutcomming: response[0].RequestPieces.request.warehouseOutcomming.name,
+      numberPr: response[0].RequestPieces.request.numberPr,
       createdAt: new Date()
     }
 
     return dataToBeReturned
   }
 
+  async findAllInvoiceReceipment() {
+    const data = await this.invoiceDao.listRequestPieces("")
+
+    return data
+  }
   findOne(id: number) {
     return `This action returns a #${id} invoice`;
   }
