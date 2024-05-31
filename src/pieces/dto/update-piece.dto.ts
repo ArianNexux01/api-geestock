@@ -4,7 +4,7 @@ import { ApiProperty } from "@nestjs/swagger"
 import { IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 import { Exclude } from 'class-transformer';
 
-export class UpdatePieceDto extends CreatePieceDto {
+export class UpdatePieceDto extends PartialType(CreatePieceDto) {
     @IsString()
     @IsNotEmpty()
 

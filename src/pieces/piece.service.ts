@@ -73,10 +73,6 @@ export class PieceService {
   }
   async findByWarehouse(id: string, searchParam: string) {
     let returnedData = await this.piecesDao.findByWarehouseId(id, searchParam)
-    /* const sumQuantity = e.PiecesWarehouse.reduce(
-       (accumulator, currentValue) => accumulator + currentValue.quantity,
-       0,
-     );*/
 
     returnedData = returnedData.map((data) => ({
       ...data,
@@ -92,5 +88,9 @@ export class PieceService {
 
   async changeStatus(id: string, status: number) {
     await this.piecesDao.changeStatus(id, status);
+  }
+
+  async updateWarehousePieceLocation(id: string, location: string) {
+    await this.piecesDao.updateWarehousePieceLocation(id, location);
   }
 }

@@ -219,7 +219,7 @@ export class PieceDao {
             }
         })
     }
-    async update(id: string, data: Pieces): Promise<Pieces> {
+    async update(id: string, data: Partial<Pieces>): Promise<Pieces> {
         const piece = this.prisma.pieces.update({ where: { id }, data });
         return piece
     }
@@ -292,6 +292,16 @@ export class PieceDao {
             where: { id },
             data: {
                 warehouseId: warehouse
+            }
+        });
+        return piece
+    }
+
+    async updateWarehousePieceLocation(id: string, location: string): Promise<any> {
+        const piece = await this.prisma.piecesWarehouse.update({
+            where: { id },
+            data: {
+                locationInWarehouse: location
             }
         });
         return piece
@@ -394,6 +404,9 @@ export class PieceDao {
                 },
                 where: {
                     AND: [{
+                        Piece: {
+                            isActive: true
+                        },
                         warehouseId: warehouseId,
                         Warehouse: {
                             isActive: true

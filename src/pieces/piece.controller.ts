@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
 import { PieceService } from './piece.service';
 import { CreatePieceDto } from './dto/create-piece.dto';
 import { UpdatePieceDto } from './dto/update-piece.dto';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Piece } from './entities/piece.entity';
+import { UpdateLocationPieceDto } from './dto/update-location-piece.dto';
 
 @ApiTags('Piece')
 @Controller('api/piece')
@@ -69,5 +70,11 @@ export class PieceController {
   @Get('change-status/:id')
   changeStatus(@Param('id') id: string, @Query('status') status: number) {
     return this.pieceService.changeStatus(id, status);
+  }
+
+  @Put('update-location/:id')
+  @ApiBody({ type: UpdateLocationPieceDto })
+  changeLocation(@Param('id') id: string, @Body() updateLocation: UpdateLocationPieceDto) {
+    return this.pieceService.updateWarehousePieceLocation(id, updateLocation.location);
   }
 }

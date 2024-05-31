@@ -90,7 +90,7 @@ model Pieces {
   name          String
   partNumber    String
   description   String? @db.Text
-  price         Float   @db.Float
+  price         Float?  @default(0) @db.Float
   state         String
   brand_name    String?
   target        Int?    @default(0)
