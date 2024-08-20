@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url      = "mysql://admin_geestock:geestockpassword@localhost:3306/geestock"
 }
 
 model Users {
@@ -80,6 +80,7 @@ model Warehouse {
   Alerts          Alerts[]
   Users           UsersWarehouse[]
   PiecesWarehouse PiecesWarehouse[]
+  Orders          Orders[]
 
   @@map("warehouse")
 }
@@ -181,10 +182,12 @@ model Orders {
   state        String        @default("Em curso")
   isActive     Boolean       @default(true)
   requestId    String?
+  warehouseId  String?
   created_at   DateTime      @default(now())
   updated_at   DateTime      @updatedAt
   OrdersPiece  OrdersPiece[]
   Request      Requests?     @relation(fields: [requestId], references: [id])
+  Warehouse    Warehouse?    @relation(fields: [warehouseId], references: [id])
 
   @@map("order")
 }
