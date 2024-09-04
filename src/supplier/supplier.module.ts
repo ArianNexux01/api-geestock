@@ -8,5 +8,6 @@ import { SupplierDao } from './supplier.dao';
   imports: [PrismaModule],
   controllers: [SupplierController],
   providers: [SupplierService, SupplierDao],
+  exports: [SupplierDao]
 })
 export class SupplierModule { }

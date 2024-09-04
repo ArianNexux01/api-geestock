@@ -17,12 +17,43 @@ import { AlertsModule } from './alerts/alerts.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { EmailService } from './email/email.service';
 import { InvoiceModule } from './invoice/invoice.module';
+import { ExcellService } from './services/excell/excell.service';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { JwtStrategy } from './auth/jwt.strategy';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/jwt.auth.guard';
 
 @Module({
+  imports: [
+    UsersModule,
+    AuthModule,
+    RequestModule,
+    WarehouseModule,
+    PieceModule,
+    CategoryModule,
+    SubcategoryModule,
+    TransportModule,
+    OrderModule,
+    SupplierModule,
+    LogsActivitiesModule,
+    AlertsModule,
+    DashboardModule,
+    InvoiceModule,
 
-  imports: [UsersModule, AuthModule, RequestModule, WarehouseModule, PieceModule, CategoryModule, SubcategoryModule, TransportModule, OrderModule, SupplierModule, LogsActivitiesModule, AlertsModule, DashboardModule, InvoiceModule],
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'public'),
+    }),
+  ],
   controllers: [AppController],
-  providers: [AppService],
-
+  providers: [
+    AppService,
+    ExcellService,
+    JwtStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -61,14 +61,14 @@ export class WarehouseDao {
             const warehouse = await this.prisma.warehouse.findMany({
                 where,
                 orderBy: {
-                    created_at: 'desc'
+                    name: 'desc'
                 }
             });
             return warehouse;
         }
         const warehouse = await this.prisma.warehouse.findMany({
             orderBy: {
-                created_at: 'desc'
+                name: 'desc'
             }
         });
         return warehouse;

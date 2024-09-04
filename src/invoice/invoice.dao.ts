@@ -39,6 +39,7 @@ export class InvoiceReciepmentDao {
                     number_series: true,
                     requestPiecesId: true,
                     quantity: true,
+                    created_at: true,
                     RequestPieces: {
                         select: {
                             id: true,

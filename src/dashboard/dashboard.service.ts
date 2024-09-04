@@ -4,50 +4,73 @@ import { PieceDao } from '../pieces/piece.dao';
 import { RequestDao } from '../requests/request.dao';
 import { WarehouseDao } from '../warehouse/warehouse.dao';
 import { PieceService } from 'src/pieces/piece.service';
-
+import { OrderService } from 'src/orders/order.service';
+import { RequestService } from 'src/requests/request.service';
 
 @Injectable()
 export class DashboardService {
-    constructor(
-        private requestDao: RequestDao,
-        private warehouseDao: WarehouseDao,
-        private orderDao: OrderDao,
-        private pieceDao: PieceDao,
-        private pieceService: PieceService
-    ) {
+  constructor(
+    private requestDao: RequestDao,
+    private warehouseDao: WarehouseDao,
+    private orderService: OrderService,
+    private pieceDao: PieceDao,
+    private requestService: RequestService,
+    private pieceService: PieceService,
+  ) {}
+  async findAll() {
+    const price = await this.pieceService.findAll('', 1, 1);
+    let totalPrice = price.reduce(
+      (accumulator, currentValue) =>
+        accumulator + currentValue.price * currentValue.quantity,
+      0,
+    );
 
-    }
-    async findAll() {
-        const price = await this.pieceService.findAll("", 1, 1)
-        let totalPrice = price.reduce(
-            (accumulator, currentValue) => accumulator + (currentValue.price * currentValue.quantity),
-            0,
-        )
-        const result = {
-            request: await this.requestDao.count(undefined),
-            warehouse: await this.warehouseDao.count(),
-            order: await this.orderDao.count(undefined),
-            piece: await this.pieceDao.count(undefined),
-            totalPrice,
-        }
+    const requestOutcomming =
+      await this.requestService.getByStateWarehouseOutcomming(
+        'Em Curso',
+        'Todos',
+      );
 
-        return result
-    }
+    const resultOfOrder = (
+      await this.orderService.findAll('', 'Todos', 'Em Curso')
+    ).length;
+    const result = {
+      request: requestOutcomming.length,
+      warehouse: await this.warehouseDao.count(),
+      order: resultOfOrder,
+      piece: await this.pieceDao.count(undefined),
+      totalPrice,
+    };
 
-    async findAllByUser(warehouseId: string) {
-        const price = await this.pieceService.findByWarehouse(warehouseId, "")
-        let totalPrice = price.reduce(
-            (accumulator, currentValue) => accumulator + currentValue.totalPrice,
-            0,
-        )
-        const result = {
-            request: await this.requestDao.count(warehouseId),
-            warehouse: 0,
-            order: await this.orderDao.count(warehouseId),
-            piece: await this.pieceDao.count(warehouseId),
-            totalPrice,
-        }
+    return result;
+  }
 
-        return result
-    }
+  async findAllByUser(warehouseId: string) {
+    const requestOutcomming =
+      await this.requestService.getByStateWarehouseOutcomming(
+        'Em Curso',
+        warehouseId,
+      );
+
+    const price = await this.pieceService.findByWarehouse(warehouseId, '');
+    let totalPrice = price.reduce(
+      (accumulator, currentValue) => accumulator + currentValue.totalPrice,
+      0,
+    );
+    const resultOfOrder = await this.orderService.findAll(
+      '',
+      warehouseId,
+      'Em Curso',
+    );
+    console.log(resultOfOrder.length);
+    const result = {
+      request: requestOutcomming.length,
+      warehouse: 0,
+      order: resultOfOrder.length,
+      piece: await this.pieceDao.count(warehouseId),
+      totalPrice,
+    };
+
+    return result;
+  }
 }

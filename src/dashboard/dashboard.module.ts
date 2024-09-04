@@ -11,4 +11,4 @@ import { OrderModule } from 'src/orders/order.module';
   controllers: [DashboardController],
   providers: [DashboardService],
 })
-export class DashboardModule { }
+export class DashboardModule {}

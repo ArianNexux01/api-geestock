@@ -7,30 +7,32 @@ import { LogsActivitiesDao } from 'src/logs-activities/logs-activities.dao';
 export class PieceService {
   constructor(
     private piecesDao: PieceDao,
-    private logsActivitiesDao: LogsActivitiesDao
-  ) {
-
-  }
+    private logsActivitiesDao: LogsActivitiesDao,
+  ) {}
   async create(createPieceDto: CreatePieceDto) {
     await this.logsActivitiesDao.create({
       userId: createPieceDto.userId,
-      description: `Criou a peça ${createPieceDto.name} com o PartNumber ${createPieceDto.partNumber}`
-    })
-    delete createPieceDto.userId
+      description: `Criou a peça ${createPieceDto.name} com o PartNumber ${createPieceDto.partNumber}`,
+    });
+    delete createPieceDto.userId;
     await this.piecesDao.create(createPieceDto);
   }
 
-  async findAll(searchParam: string, onlyActive: number, onlyWithQuantity: number) {
+  async findAll(
+    searchParam: string,
+    onlyActive: number,
+    onlyWithQuantity: number,
+  ) {
     const pieces = await this.piecesDao.list(searchParam, onlyActive);
-    let totalPrice = 0
-    const piecesToReturn = []
+    let totalPrice = 0;
+    const piecesToReturn = [];
     pieces.forEach(async (e) => {
       const sumQuantity = e.PiecesWarehouse.reduce(
         (accumulator, currentValue) => accumulator + currentValue.quantity,
         0,
       );
 
-      totalPrice = sumQuantity * e.price
+      totalPrice = sumQuantity * e.price;
       if (totalPrice <= 0 && onlyWithQuantity == 1) {
         return;
       }
@@ -47,11 +49,13 @@ export class PieceService {
         isActive: e.isActive,
         target: e.target,
         min: e.min,
+        supplierId: e.supplierId,
+        warehouseId: e.warehouseId,
         created_at: e.created_at,
         updated_at: e.updated_at,
-        totalPrice: totalPrice
-      })
-    })
+        totalPrice: totalPrice,
+      });
+    });
     return piecesToReturn;
   }
 
@@ -62,9 +66,9 @@ export class PieceService {
   async update(id: string, updatePieceDto: UpdatePieceDto) {
     await this.logsActivitiesDao.create({
       userId: updatePieceDto.userId,
-      description: `Actualizou a peça ${updatePieceDto.name} com o PartNumber ${updatePieceDto.partNumber}`
-    })
-    delete updatePieceDto.userId
+      description: `Actualizou a peça ${updatePieceDto.name} com o PartNumber ${updatePieceDto.partNumber}`,
+    });
+    delete updatePieceDto.userId;
     return await this.piecesDao.update(id, updatePieceDto);
   }
 
@@ -72,18 +76,19 @@ export class PieceService {
     await this.piecesDao.delete(id);
   }
   async findByWarehouse(id: string, searchParam: string) {
-    let returnedData = await this.piecesDao.findByWarehouseId(id, searchParam)
+    let returnedData = await this.piecesDao.findByWarehouseId(id, searchParam);
 
     returnedData = returnedData.map((data) => ({
       ...data,
+      supplierId: data.Piece.supplierId,
       name: data.Piece.name,
       partNumber: data.Piece.partNumber,
       description: data.Piece.description,
       price: data.Piece.price,
-      totalPrice: data.Piece.price * data.quantity
-    }))
+      totalPrice: data.Piece.price * data.quantity,
+    }));
 
-    return returnedData
+    return returnedData;
   }
 
   async changeStatus(id: string, status: number) {

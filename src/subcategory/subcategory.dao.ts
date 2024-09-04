@@ -73,7 +73,7 @@ export class SubcategoryDao {
                     category: true
                 },
                 orderBy: {
-                    created_at: 'desc'
+                    name: 'asc'
                 }
             });
 
@@ -84,7 +84,7 @@ export class SubcategoryDao {
                 category: true
             },
             orderBy: {
-                created_at: 'desc'
+                name: 'asc'
             }
         });
 
@@ -139,5 +139,8 @@ export class SubcategoryDao {
 
             }
         })
+    }
+    async findByName(name: string): Promise<SubCategories> {
+        return this.prisma.subCategories.findFirst({ where: { name: name } })
     }
 }

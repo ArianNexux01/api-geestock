@@ -29,7 +29,7 @@ export class InvoiceService {
       warehouseIncomming: response[0].RequestPieces.request.warehouseIncomming.name,
       warehouseOutcomming: response[0].RequestPieces.request.warehouseOutcomming.name,
       numberPr: response[0].RequestPieces.request.numberPr,
-      createdAt: new Date()
+      createdAt: response[0].created_at,
     }
 
     return dataToBeReturned

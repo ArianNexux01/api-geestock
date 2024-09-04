@@ -58,7 +58,7 @@ export class CategoryDao {
             const categories = await this.prisma.categories.findMany({
                 where,
                 orderBy: {
-                    created_at: 'desc'
+                    name: 'asc'
                 }
             });
 
@@ -89,5 +89,9 @@ export class CategoryDao {
                 isActive: status == 1
             }
         })
+    }
+
+    async findByName(name: string): Promise<Categories> {
+        return this.prisma.categories.findFirst({ where: { name: name } })
     }
 }

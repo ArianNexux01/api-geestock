@@ -6,5 +6,9 @@ import { PrismaClient } from '@prisma/client';
 export class PrismaService extends PrismaClient implements OnModuleInit {
   async onModuleInit() {
     await this.$connect();
+    // @ts-ignore
+    this.$on('query', (e: any) => {
+      console.log(e);
+    });
   }
 }

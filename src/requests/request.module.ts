@@ -10,9 +10,15 @@ import { InvoiceModule } from 'src/invoice/invoice.module';
 import { OrderModule } from 'src/orders/order.module';
 
 @Module({
-  imports: [PrismaModule, PieceModule, AlertsModule, InvoiceModule, OrderModule],
+  imports: [
+    PrismaModule,
+    PieceModule,
+    AlertsModule,
+    InvoiceModule,
+    OrderModule,
+  ],
   controllers: [RequestController],
   providers: [RequestService, RequestDao, EmailService],
-  exports: [RequestDao]
+  exports: [RequestDao, RequestService],
 })
-export class RequestModule { }
+export class RequestModule {}

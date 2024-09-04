@@ -10,6 +10,6 @@ import { AlertsModule } from 'src/alerts/alerts.module';
   imports: [PrismaModule, AlertsModule],
   controllers: [OrderController],
   providers: [OrderService, OrderDao, PieceDao],
-  exports: [OrderDao]
+  exports: [OrderDao, OrderService],
 })
-export class OrderModule { }
+export class OrderModule {}

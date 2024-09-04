@@ -58,14 +58,14 @@ export class SupplierDao {
             const supplier = await this.prisma.suppliers.findMany({
                 where,
                 orderBy: {
-                    created_at: 'desc'
+                    name: 'asc'
                 }
             });
             return supplier;
         }
         const supplier = await this.prisma.suppliers.findMany({
             orderBy: {
-                created_at: 'desc'
+                name: 'asc'
             }
         });
 
@@ -93,5 +93,9 @@ export class SupplierDao {
 
             }
         })
+    }
+
+    async findByName(name: string): Promise<Suppliers> {
+        return this.prisma.suppliers.findFirst({ where: { name: name } })
     }
 }

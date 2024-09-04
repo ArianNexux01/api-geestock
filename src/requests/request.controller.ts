@@ -1,15 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  Put,
+} from '@nestjs/common';
 import { RequestService } from './request.service';
 import { CreateRequestDTO } from './dto/create-request.dto';
 import { UpdateRequestDTO } from './dto/update-request.dto';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from './entities/request.entity';
 import { AcceptRequestDTO } from './dto/accept-request.dto';
 
 @ApiTags('Request')
 @Controller('api/request')
 export class RequestController {
-  constructor(private readonly requestService: RequestService) { }
+  constructor(private readonly requestService: RequestService) {}
 
   @ApiCreatedResponse({
     description: 'Request registered successfully',
@@ -33,7 +49,6 @@ export class RequestController {
     return this.requestService.getInvoices();
   }
 
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.requestService.findOne(id);
@@ -52,24 +67,52 @@ export class RequestController {
   }
 
   @Get('/warehouseincomming/:id')
-  async getWarehouseIncomming(@Param('id') id: string, @Query('searchParam') searchParam: string) {
-    return await this.requestService.findByWarehouseIncommingId(id, searchParam);
+  async getWarehouseIncomming(
+    @Param('id') id: string,
+    @Query('searchParam') searchParam: string,
+  ) {
+    return await this.requestService.findByWarehouseIncommingId(
+      id,
+      searchParam,
+    );
   }
 
   @Get('/warehouseoutcomming/:id')
-  async getWarehouseOutcomming(@Param('id') id: string, @Query('searchParam') searchParam: string) {
-    return await this.requestService.findByWarehouseOutcommingId(id, searchParam);
+  async getWarehouseOutcomming(
+    @Param('id') id: string,
+    @Query('searchParam') searchParam: string,
+  ) {
+    return await this.requestService.findByWarehouseOutcommingId(
+      id,
+      searchParam,
+    );
   }
 
   @Get('/by-state/:state')
-  async getByState(@Param('state') state: string, @Query("warehouseId") warehouseId: string) {
+  async getByState(
+    @Param('state') state: string,
+    @Query('warehouseId') warehouseId: string,
+  ) {
     return await this.requestService.findByState(state, warehouseId);
   }
 
+  @Get('/by-state/warehouseoutcomming/:state/:warehouseId')
+  async getByStateWarehouseOutcomming(
+    @Param('state') state: string,
+    @Param('warehouseId') warehouseId: string,
+  ) {
+    return await this.requestService.getByStateWarehouseOutcomming(
+      state,
+      warehouseId,
+    );
+  }
 
   @Post('/accept-request/:id')
   @ApiBody({ type: AcceptRequestDTO })
-  async acceptRequest(@Param('id') id: string, @Body() request: AcceptRequestDTO) {
+  async acceptRequest(
+    @Param('id') id: string,
+    @Body() request: AcceptRequestDTO,
+  ) {
     return await this.requestService.acceptRequest(id, request);
   }
 

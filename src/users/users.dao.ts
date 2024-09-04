@@ -44,7 +44,6 @@ export class UsersDao {
                 ]
             };
         }
-        console.log("Ola mundo: " + searchParam, onlyActive == 1, onlyActive)
 
         if (onlyActive == 1) {
 
@@ -89,7 +88,7 @@ export class UsersDao {
                     }
                 },
                 orderBy: {
-                    created_at: 'desc'
+                    name: 'asc'
                 }
             });
 
@@ -111,7 +110,7 @@ export class UsersDao {
                 }
             },
             orderBy: {
-                created_at: 'desc'
+                name: 'asc'
             }
         });
 
@@ -145,7 +144,7 @@ export class UsersDao {
 
         const user = await this.prisma.users.update({
             where: { id }, data: {
-               password: passwordDefault
+                password: passwordDefault
             }
         });
     }
