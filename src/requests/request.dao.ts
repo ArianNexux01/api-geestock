@@ -8,7 +8,6 @@ export class RequestDao {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: any): Promise<any> {
-    console.log(data);
     const requestPiecesData = data.request.map((e) => ({
       pieceWarehouseId: e.pieceId,
       quantity: e.quantityRequested,
@@ -459,7 +458,6 @@ export class RequestDao {
           ],
         },
       });
-      console.log(data);
       return data;
     }
     return this.prisma.requests.count({

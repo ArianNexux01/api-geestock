@@ -62,7 +62,6 @@ export class DashboardService {
       warehouseId,
       'Em Curso',
     );
-    console.log(resultOfOrder.length);
     const result = {
       request: requestOutcomming.length,
       warehouse: 0,

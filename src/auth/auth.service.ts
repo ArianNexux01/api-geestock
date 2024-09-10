@@ -3,15 +3,19 @@ import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcryptjs';
 import { UsersDao } from 'src/users/users.dao';
 import { jwtConstants } from './constants';
+import { RolesDao } from 'src/users/roles.dao';
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersDao, private jwtService: JwtService) {}
+  constructor(
+    private usersService: UsersDao,
+    private jwtService: JwtService,
+    private rolesDao: RolesDao,
+  ) {}
 
   async signIn(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    console.log(user);
-    if (user.position !== '1') {
+    if (user.position === '3') {
       let atLeastOneWarehouseActive = user.warehouse.filter(
         (e: any) => e.Warehouse?.isActive,
       );
@@ -32,7 +36,7 @@ export class AuthService {
       .map((e) => e.Warehouse)
       .filter((warehouse) => warehouse !== null);
     const payload = { sub: user.id, username: user.name };
-
+    const roles = await this.usersService.findRoleyId(user.position);
     return {
       data: {
         id: user.id,
@@ -40,6 +44,7 @@ export class AuthService {
         name: user.name,
         company: user.company,
         position: user.position,
+        role: roles.name,
         warehouse: warehouse,
       },
       access_token: await this.jwtService.signAsync(payload),

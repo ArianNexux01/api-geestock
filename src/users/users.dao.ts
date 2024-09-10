@@ -216,4 +216,14 @@ export class UsersDao {
             }
         })
     }
+
+    async findRoleyId(id: string): Promise<any> {
+        const role = await this.prisma.roles.findUnique({
+          where: {
+            id: id,
+          },
+        });
+    
+        return role;
+      }
 }

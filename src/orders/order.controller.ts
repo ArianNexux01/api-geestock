@@ -76,7 +76,6 @@ export class OrderController {
     @Body() confirmOrder: ConfirmOrderDTO,
     @Request() req,
   ) {
-    console.log(req);
     await this.orderService.confirmOrder(orderId, confirmOrder, req.user);
   }
 }

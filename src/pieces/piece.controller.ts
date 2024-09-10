@@ -201,7 +201,6 @@ export class PieceController {
       } else {
         data = await this.pieceService.findByWarehouse(id, '');
       }
-      console.log(data);
       await this.excellService.writeToExcel(data, filePath);
 
       return {

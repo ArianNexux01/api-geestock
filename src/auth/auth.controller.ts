@@ -25,7 +25,6 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Public()
   async signIn(@Body() signInDto: Record<string, string>) {
-    console.log(signInDto);
 
     try {
       const res = await this.authService.signIn(
@@ -34,7 +33,6 @@ export class AuthController {
       );
       return res;
     } catch (error) {
-      console.log(signInDto);
       return { error: error.message, status: 401 };
     }
   }

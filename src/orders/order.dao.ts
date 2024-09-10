@@ -526,7 +526,6 @@ export class OrderDao {
           },
         },
       });
-      console.log(order);
       return order;
     }
     return this.prisma.orders.count();

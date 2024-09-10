@@ -18,44 +18,24 @@ model Users {
   company        String
   position       String
   password       String
-  roles          Roles[]
-  UsersRoles     UsersRoles[]
   isActive       Boolean          @default(true)
   created_at     DateTime         @default(now())
   updated_at     DateTime         @updatedAt
   LogsActivities LogsActivities[]
   warehouse      UsersWarehouse[]
+  Role           Roles?           @relation(fields: [position], references: [id])
 
   @@map("users")
 }
 
 model Roles {
-  id   String @id @default(uuid())
-  name String
-
-  users Users[]
-
-  UsersRoles UsersRoles[]
-
+  id         String   @id @default(uuid())
+  name       String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  Users      Users[]
 
   @@map("roles")
-}
-
-model UsersRoles {
-  id     String @id @default(uuid())
-  userId String
-  roleId String
-
-  user Users @relation(fields: [userId], references: [id])
-
-  role Roles @relation(fields: [roleId], references: [id])
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("users_roles")
 }
 
 model Warehouse {

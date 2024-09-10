@@ -30,7 +30,7 @@ import { UserEntity } from './entities/user.entity';
 @Controller('api/users')
 @ApiTags('Users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post('/')
   @ApiCreatedResponse({
@@ -56,27 +56,26 @@ export class UsersController {
     }
   }
 
-
   @ApiQuery({
-    name: "searchParam",
+    name: 'searchParam',
     type: String,
-    required: false
+    required: false,
   })
   @ApiQuery({
-    name: "onlyActive",
+    name: 'onlyActive',
     type: Number,
-    required: false
+    required: false,
   })
   @Get()
   @ApiQuery({
-    name: "searchParam",
+    name: 'searchParam',
     type: String,
-    required: false
+    required: false,
   })
   @ApiQuery({
-    name: "onlyActive",
+    name: 'onlyActive',
     type: Number,
-    required: false
+    required: false,
   })
   @ApiBearerAuth()
   @ApiOkResponse({
@@ -85,11 +84,18 @@ export class UsersController {
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  async findAll(@Query('searchParam') searchParam: string, @Query('onlyActive') onlyActive: number) {
+  async findAll(
+    @Query('searchParam') searchParam: string,
+    @Query('onlyActive') onlyActive: number,
+  ) {
     const users = await this.usersService.findAll(searchParam, onlyActive);
     return users;
   }
-
+  @Get('/roles')
+  async getRoles() {
+    console.log('OLA MUNDO:');
+    return this.usersService.listRoles();
+  }
   @Get(':id')
   @ApiBearerAuth()
   findOne(@Param('id') id: string) {
@@ -114,7 +120,6 @@ export class UsersController {
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
-
 
   @Get('change-status/:id')
   changeStatus(@Param('id') id: string, @Query('status') status: number) {

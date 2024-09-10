@@ -27,13 +27,17 @@ export class OrderService {
   async findAll(searchParam: string, warehouseId: string, state: string) {
     let order: any = [];
     let orderNew: any = [];
-    if (warehouseId !== undefined && warehouseId !== '') {
-      console.log('Ola entrei sai do else: ', warehouseId);
+    if (
+      warehouseId !== undefined &&
+      warehouseId !== '' &&
+      warehouseId !== 'Todos'
+    ) {
       let orderWithWarehouseId = await this.orderDao.listByWarehouseInCommingId(
         warehouseId,
         searchParam,
         state,
       );
+      console.log(orderWithWarehouseId);
       order.push(...orderWithWarehouseId);
     }
     orderNew = await this.orderDao.list(searchParam, state);
@@ -109,15 +113,6 @@ export class OrderService {
           const downNumber = Number(item.quantity) * Number(item.price);
           const middleNumber = upNumber + downNumber;
           const mediumPrice = (middleNumber / quantityAll).toFixed(2);
-          /*
-          
-          console.log("QUANTIDADE TOTAL ARMAZEM,  QUANTIDADE ENCOMENDA ", quantityGeneral, item.quantity)
-          console.log("QUANTIDADE TOTAL ARMAZEM + QUANTIDADE ENCOMENDA ", quantityAll)
-          console.log("VALOR TOTAL DE ARMAZEM ", upNumber)
-          console.log("VALOR TOTAL DE ENCOMENDA ", downNumber)
-          console.log("PREÇO MÉDIO", mediumPrice)
-          
-          */
 
           await this.pieceDao.updatePrice(item.pieceId, Number(mediumPrice));
         }

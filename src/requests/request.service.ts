@@ -63,9 +63,8 @@ export class RequestService {
 
     let dataToBeReturned = data;
     const piecesWithNewPrice = [];
-    console.log(data.RequestsPieces);
-    if (data?.RequestsPieces !== null)
-      for (const request of data?.RequestsPieces) {
+    if (data?.RequestsPieces !== null && data?.RequestsPieces !== undefined)
+      for (const request of data.RequestsPieces) {
         let pieceData = await this.pieceDao.findByWarehouseAndPiece(
           request.PiecesWarehouse.Piece.id,
           data.warehouseOutcomming.id,
@@ -136,12 +135,14 @@ export class RequestService {
         pieceData.id,
         Number(Number(pieceData.quantity) + Number(requestPiece.quantity)),
       );
+      const quantityAllPiecesInWarehouseFix =
+        await this.pieceDao.countQuantityAllPieces(pieceData.id);
 
       const leftQuantityOfPieces =
         Number(pieceData.quantity) - Number(piece.quantityGiven);
       await this.pieceDao.updateQuantity(pieceData.id, leftQuantityOfPieces);
 
-      if (pieceData.Piece.target >= leftQuantityOfPieces) {
+      if (pieceData.Piece.target >= quantityAllPiecesInWarehouseFix) {
         this.alertsDao.create({
           description: `A Peça ${pieceData.Piece.name} atingiu o set target.`,
           pieceWarehouseId: pieceData.id,
@@ -149,7 +150,7 @@ export class RequestService {
         });
       }
 
-      if (pieceData.Piece.min >= leftQuantityOfPieces) {
+      if (pieceData.Piece.min >= quantityAllPiecesInWarehouseFix) {
         this.alertsDao.create({
           description: `A Peça ${pieceData.Piece.name} atingiu a sua quantidade mínina.`,
           pieceWarehouseId: pieceData.id,
@@ -277,7 +278,10 @@ export class RequestService {
   }
 
   async getByStateWarehouseOutcomming(state: string, warehouseId: string) {
-    return await this.requestsDao.findByStateWarehouseOutcomming(state, warehouseId)
+    return await this.requestsDao.findByStateWarehouseOutcomming(
+      state,
+      warehouseId,
+    );
   }
   async findByState(state: string, warehouseId: string) {
     return await this.requestsDao.findByState(state, warehouseId);

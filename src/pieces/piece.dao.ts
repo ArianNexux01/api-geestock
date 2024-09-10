@@ -27,7 +27,6 @@ export class PieceDao {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreatePieceDto): Promise<any> {
-    console.log(data);
     return this.prisma.pieces.create({ data });
   }
 
@@ -274,7 +273,6 @@ export class PieceDao {
     id: string,
     quantity: number,
   ): Promise<PiecesWarehouseWithPiece> {
-    console.log('updateQuantity', id);
     const piece = this.prisma.piecesWarehouse.update({
       where: {
         id,
@@ -477,5 +475,15 @@ export class PieceDao {
     });
 
     return returnData;
+  }
+
+  async countQuantityAllPieces(id: string): Promise<number> {
+    const returnData = await this.prisma.$queryRaw`
+      SELECT SUM(pw.quantity) as pw.quantity FROM pieces_warehouse as pw 
+      JOIN pieces as p ON p.id = pw.pieceId 
+      WHERE pw.pieceId = '${id} AND p.type = 'Armazém'
+    `;
+
+    return returnData[0].quantity;
   }
 }

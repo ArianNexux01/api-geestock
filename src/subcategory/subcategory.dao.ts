@@ -113,7 +113,6 @@ export class SubcategoryDao {
 
 
     async update(id: string, data: any): Promise<SubCategories> {
-        console.log(data)
         const subcategory = await this.prisma.subCategories.update({
             where: { id },
             data: {
