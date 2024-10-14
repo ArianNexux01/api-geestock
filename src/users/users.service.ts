@@ -7,9 +7,7 @@ import { v4 as uuid } from 'uuid';
 import { RolesDao } from './roles.dao';
 @Injectable()
 export class UsersService {
-  constructor(private usersDao: UsersDao, private rolesDao: RolesDao) {
-    console.log(rolesDao);
-  }
+  constructor(private usersDao: UsersDao, private rolesDao: RolesDao) {}
   async create(createUserDto: CreateUserDto) {
     createUserDto.password = await hash('12345', 4);
     createUserDto.id = uuid();

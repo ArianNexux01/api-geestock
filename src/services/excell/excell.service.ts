@@ -41,26 +41,28 @@ export class ExcellService {
     try {
       const workbook = new Workbook();
       data = await Promise.all(
-        data.map(async (piece) => {
-          let supplier = await this.supplierDao.find(piece.supplierId);
+        data
+          .filter((piece) => piece.quantity > 0)
+          .map(async (piece) => {
+            let supplier = await this.supplierDao.find(piece.supplierId);
 
-          let warehouse = await this.warehouseDao.find(piece.warehouseId);
+            let warehouse = await this.warehouseDao.find(piece.warehouseId);
 
-          return {
-            brand_name: piece.Piece?.brand_name,
-            min: piece.Piece?.min,
-            target: piece.Piece?.target,
-            supplier: supplier.name,
-            warehouse: warehouse?.name,
-            totalPrice: Number(piece.price) * Number(piece.quantity),
-            quantity: piece.quantity,
-            locationInWarehouse: piece.locationInWarehouse,
-            ...piece.Piece,
-          };
-        }),
+            return {
+              brand_name: piece.Piece?.brand_name,
+              min: piece.Piece?.min,
+              target: piece.Piece?.target,
+              supplier: supplier.name,
+              warehouse: warehouse?.name,
+              totalPrice: Number(piece.price) * Number(piece.quantity),
+              quantity: piece.quantity,
+              locationInWarehouse: piece.locationInWarehouse,
+              ...piece.Piece,
+            };
+          }),
       );
       const sheet = workbook.addWorksheet('Sheet1');
-      
+
       const headers = Object({
         name: 'Nome',
         description: 'Descrição',

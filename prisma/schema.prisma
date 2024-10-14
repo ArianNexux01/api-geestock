@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://admin_geestock:geestockpassword@localhost:3306/geestock"
+  url      = "mysql://admin_geestock:geestockpassword@localhost:3306/geestockDev"
 }
 
 model Users {
@@ -68,18 +68,19 @@ model Warehouse {
 model Pieces {
   id String @id @default(uuid())
 
-  name          String
-  partNumber    String
-  description   String? @db.Text
-  price         Float?  @default(0) @db.Float
-  state         String
-  brand_name    String?
-  target        Int?    @default(0)
-  min           Int?    @default(0)
-  categoryId    String
-  subCategoryId String
-  supplierId    String?
-
+  name            String
+  partNumber      String
+  description     String?           @db.Text
+  price           Float?            @default(0) @db.Float
+  state           String
+  brand_name      String?
+  target          Int?              @default(0)
+  min             Int?              @default(0)
+  categoryId      String
+  subCategoryId   String
+  supplierId      String?
+  min_notified    Boolean           @default(false)
+  target_notified Boolean           @default(false)
   category        Categories?       @relation(fields: [categoryId], references: [id])
   subcategory     SubCategories?    @relation(fields: [subCategoryId], references: [id])
   supplier        Suppliers?        @relation(fields: [supplierId], references: [id])

@@ -135,28 +135,13 @@ export class RequestService {
         pieceData.id,
         Number(Number(pieceData.quantity) + Number(requestPiece.quantity)),
       );
-      const quantityAllPiecesInWarehouseFix =
-        await this.pieceDao.countQuantityAllPieces(pieceData.id);
 
       const leftQuantityOfPieces =
         Number(pieceData.quantity) - Number(piece.quantityGiven);
+
       await this.pieceDao.updateQuantity(pieceData.id, leftQuantityOfPieces);
 
-      if (pieceData.Piece.target >= quantityAllPiecesInWarehouseFix) {
-        this.alertsDao.create({
-          description: `A Peça ${pieceData.Piece.name} atingiu o set target.`,
-          pieceWarehouseId: pieceData.id,
-          warehouseId: request.warehouseOutcomming.id,
-        });
-      }
-
-      if (pieceData.Piece.min >= quantityAllPiecesInWarehouseFix) {
-        this.alertsDao.create({
-          description: `A Peça ${pieceData.Piece.name} atingiu a sua quantidade mínina.`,
-          pieceWarehouseId: pieceData.id,
-          warehouseId: request.warehouseOutcomming.id,
-        });
-      }
+      this.createNotifications(pieceData, request);
 
       //So acontece se os dois armazens forem moveis um if aqui
       if (request.warehouseIncomming.type === 'Embarcação') {
@@ -271,6 +256,43 @@ export class RequestService {
       numberPr: request.numberPr,
       createdAt: request.created_at,
     };
+  }
+  async createNotifications(pieceData: any, request: any) {
+    const quantityAllPiecesInWarehouseFix =
+      await this.pieceDao.countQuantityAllPieces(pieceData.id);
+    console.log(
+      'STATE:',
+      pieceData.Piece.target_notified,
+      pieceData.Piece.target >= quantityAllPiecesInWarehouseFix &&
+        !pieceData.Piece.target_notified,
+    );
+    if (
+      pieceData.Piece.target >= quantityAllPiecesInWarehouseFix &&
+      !pieceData.Piece.target_notified
+    ) {
+      this.alertsDao.create({
+        description: `A Peça ${pieceData.Piece.name} atingiu o seu target.`,
+        pieceWarehouseId: pieceData.id,
+        warehouseId: request.warehouseOutcomming.id,
+      });
+      this.pieceDao.updateNotifications(pieceData.Piece.id, {
+        target_notified: true,
+      });
+    }
+
+    if (
+      pieceData.Piece.min >= quantityAllPiecesInWarehouseFix &&
+      !pieceData.Piece.min_notified
+    ) {
+      this.alertsDao.create({
+        description: `A Peça ${pieceData.Piece.name} atingiu a sua quantidade mínina.`,
+        pieceWarehouseId: pieceData.id,
+        warehouseId: request.warehouseOutcomming.id,
+      });
+      this.pieceDao.updateNotifications(pieceData.Piece.id, {
+        min_notified: true,
+      });
+    }
   }
 
   async getInvoices() {

@@ -44,7 +44,34 @@ export class PieceDao {
   async list(searchParam?: string, onlyActive?: number): Promise<any> {
     let pieces: any;
     let where: any;
-
+    let select = {
+      brand_name: true,
+      id: true,
+      description: true,
+      partNumber: true,
+      name: true,
+      price: true,
+      state: true,
+      supplierId: true,
+      target: true,
+      min: true,
+      isActive: true,
+      created_at: true,
+      updated_at: true,
+      PiecesWarehouse: {
+        select: {
+          quantity: true,
+          locationInWarehouse: true,
+          pieceId: true,
+          warehouseId: true,
+          Warehouse: {
+            select: {
+              type: true,
+            },
+          },
+        },
+      },
+    };
     if (searchParam !== '' && searchParam !== undefined) {
       where = {
         OR: [
@@ -103,30 +130,7 @@ export class PieceDao {
           created_at: 'desc',
         },
         where,
-
-        select: {
-          brand_name: true,
-          id: true,
-          description: true,
-          partNumber: true,
-          name: true,
-          price: true,
-          state: true,
-          supplierId: true,
-          target: true,
-          min: true,
-          isActive: true,
-          created_at: true,
-          updated_at: true,
-          PiecesWarehouse: {
-            select: {
-              quantity: true,
-              locationInWarehouse: true,
-              pieceId: true,
-              warehouseId: true,
-            },
-          },
-        },
+        select,
       });
 
       return pieces;
@@ -135,28 +139,7 @@ export class PieceDao {
       orderBy: {
         created_at: 'desc',
       },
-
-      select: {
-        brand_name: true,
-        id: true,
-        description: true,
-        partNumber: true,
-        name: true,
-        price: true,
-        state: true,
-        target: true,
-        min: true,
-        supplierId: true,
-        isActive: true,
-        PiecesWarehouse: {
-          select: {
-            quantity: true,
-            locationInWarehouse: true,
-            pieceId: true,
-            warehouseId: true,
-          },
-        },
-      },
+      select,
     });
   }
   async getQuantityOfAllPieces(partNumber: string) {
@@ -168,6 +151,9 @@ export class PieceDao {
         where: {
           Piece: {
             partNumber: partNumber,
+          },
+          Warehouse: {
+            type: 'Armazém',
           },
         },
       })
@@ -478,12 +464,52 @@ export class PieceDao {
   }
 
   async countQuantityAllPieces(id: string): Promise<number> {
-    const returnData = await this.prisma.$queryRaw`
-      SELECT SUM(pw.quantity) as pw.quantity FROM pieces_warehouse as pw 
-      JOIN pieces as p ON p.id = pw.pieceId 
-      WHERE pw.pieceId = '${id} AND p.type = 'Armazém'
-    `;
+    const returnData = await this.prisma.piecesWarehouse.aggregate({
+      _sum: {
+        quantity: true,
+      },
+      where: {
+        Piece: {
+          isActive: true,
+        },
+        Warehouse: {
+          type: 'Armazém',
+        },
+      },
+    });
+    return returnData._sum.quantity;
+  }
 
-    return returnData[0].quantity;
+  async findAllPiecesInWarehouseFixed(): Promise<any> {
+    return await this.prisma.piecesWarehouse.findMany({
+      orderBy: {
+        created_at: 'desc',
+      },
+      where: {
+        Warehouse: {
+          type: 'Armazém',
+        },
+      },
+      select: {
+        quantity: true,
+        locationInWarehouse: true,
+        pieceId: true,
+        warehouseId: true,
+        Piece: {
+          select: {
+            price: true,
+          },
+        },
+      },
+    });
+  }
+
+  async updateNotifications(id: string, data: Object) {
+    await this.prisma.pieces.update({
+      data,
+      where: {
+        id,
+      },
+    });
   }
 }

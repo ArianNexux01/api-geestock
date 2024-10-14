@@ -93,7 +93,6 @@ export class UsersController {
   }
   @Get('/roles')
   async getRoles() {
-    console.log('OLA MUNDO:');
     return this.usersService.listRoles();
   }
   @Get(':id')

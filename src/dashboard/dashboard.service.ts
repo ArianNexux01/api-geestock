@@ -18,10 +18,15 @@ export class DashboardService {
     private pieceService: PieceService,
   ) {}
   async findAll() {
-    const price = await this.pieceService.findAll('', 1, 1);
+    const price = await this.pieceDao.findAllPiecesInWarehouseFixed();
+
     let totalPrice = price.reduce(
       (accumulator, currentValue) =>
-        accumulator + currentValue.price * currentValue.quantity,
+        accumulator + currentValue.Piece.price * currentValue.quantity,
+      0,
+    );
+    let quantity = price.reduce(
+      (accumulator, currentValue) => accumulator + currentValue.quantity,
       0,
     );
 
@@ -38,7 +43,7 @@ export class DashboardService {
       request: requestOutcomming.length,
       warehouse: await this.warehouseDao.count(),
       order: resultOfOrder,
-      piece: await this.pieceDao.count(undefined),
+      piece: quantity,
       totalPrice,
     };
 

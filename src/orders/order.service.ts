@@ -20,6 +20,12 @@ export class OrderService {
       userId: createOrderDto.userId,
       description: `Realizou uma encomenda com o número ${createOrderDto.number_order}`,
     });
+    createOrderDto.request.map((e) => {
+      this.pieceDao.updateNotifications(e.pieceId, {
+        min_notified: false,
+        target_notified: false,
+      });
+    });
     delete createOrderDto.userId;
     await this.orderDao.create(createOrderDto);
   }
@@ -37,7 +43,6 @@ export class OrderService {
         searchParam,
         state,
       );
-      console.log(orderWithWarehouseId);
       order.push(...orderWithWarehouseId);
     }
     orderNew = await this.orderDao.list(searchParam, state);
@@ -110,8 +115,10 @@ export class OrderService {
         );
         if (order.requestId === null || order.requestId === '') {
           const upNumber = Number(quantityGeneral) * Number(findPiece.price);
+          //2*1000/2=1000
           const downNumber = Number(item.quantity) * Number(item.price);
-          const middleNumber = upNumber + downNumber;
+          const middleNumber =
+            Number(quantityGeneral) <= 0 ? downNumber : upNumber + downNumber;
           const mediumPrice = (middleNumber / quantityAll).toFixed(2);
 
           await this.pieceDao.updatePrice(item.pieceId, Number(mediumPrice));

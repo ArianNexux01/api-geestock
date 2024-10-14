@@ -26,8 +26,10 @@ export class PieceService {
     const pieces = await this.piecesDao.list(searchParam, onlyActive);
     let totalPrice = 0;
     const piecesToReturn = [];
-    pieces.forEach(async (e) => {
-      const sumQuantity = e.PiecesWarehouse.reduce(
+    pieces?.forEach(async (e) => {
+      const sumQuantity = e.PiecesWarehouse.filter(
+        (e) => e.Warehouse.type === 'Armazém',
+      ).reduce(
         (accumulator, currentValue) => accumulator + currentValue.quantity,
         0,
       );
@@ -80,6 +82,7 @@ export class PieceService {
 
     returnedData = returnedData.map((data) => ({
       ...data,
+      isActive: data.Piece.isActive,
       supplierId: data.Piece.supplierId,
       name: data.Piece.name,
       partNumber: data.Piece.partNumber,
